@@ -1,0 +1,18 @@
+{
+  "name": "french penis (Test 2)",
+  "target_lang": "FR",
+  "cards": {
+    "Long live democracy": {
+      "translation": "Vive la démocratie",
+      "source_lang": "EN"
+    },
+    "Let the free Quebec live": {
+      "translation": "Laisser vivre le Québec libre",
+      "source_lang": "EN"
+    },
+    "Nothing can stop me!": {
+      "translation": "Rien ne peut m'arrêter !",
+      "source_lang": "EN"
+    }
+  }
+}

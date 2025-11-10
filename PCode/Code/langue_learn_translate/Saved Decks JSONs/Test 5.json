@@ -1,0 +1,30 @@
+{
+  "name": "Test 5",
+  "target_lang": "EN-US",
+  "cards": {
+    "Tutto perfecto": {
+      "translation": "Tutto perfecto",
+      "source_lang": "IT"
+    },
+    "Alles klar hier": {
+      "translation": "Alles klar here",
+      "source_lang": "NL"
+    },
+    "Der Apfel faellt nicht weit vom Stamm": {
+      "translation": "The apple doesn't fall far from the tree",
+      "source_lang": "DE"
+    },
+    "Je ne sais pas quoi dire, mais t'es belle": {
+      "translation": "I don't know what to say, but you're beautiful",
+      "source_lang": "FR"
+    },
+    "Yo parlo catalan": {
+      "translation": "I speak Catalan",
+      "source_lang": "ES"
+    },
+    "Kann ich dein Auto borgen?": {
+      "translation": "Can I borrow your car?",
+      "source_lang": "DE"
+    }
+  }
+}
