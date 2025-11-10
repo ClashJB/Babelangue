@@ -1,0 +1,3 @@
+x = input("Hey give me an input!")
+
+print(x.lower())

@@ -1,0 +1,13 @@
+def main():
+    print(convert(input("Enter a text emoji: ")))
+
+
+def convert(textemoji):
+    if textemoji == ":)":
+        return "😊"
+    elif textemoji == ":(":
+        return "☹️"
+    else:
+        return "Emoji not recognized"
+    
+main()
