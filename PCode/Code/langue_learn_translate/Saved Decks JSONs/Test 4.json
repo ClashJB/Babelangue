@@ -1,0 +1,34 @@
+{
+  "name": "Test 4",
+  "target_lang": "FR",
+  "cards": {
+    "Never ever in my llife": {
+      "translation": "Jamais de la vie",
+      "source_lang": "EN"
+    },
+    "I didn't really know what I was doing": {
+      "translation": "Je ne savais pas vraiment ce que je faisais",
+      "source_lang": "EN"
+    },
+    "Stop messing with me": {
+      "translation": "Arrêtez de vous moquer de moi",
+      "source_lang": "EN"
+    },
+    "This is phrase 1": {
+      "translation": "Il s'agit de la phrase 1",
+      "source_lang": "EN"
+    },
+    "Das hier ist Satz 2": {
+      "translation": "Voici la deuxième phrase",
+      "source_lang": "DE"
+    },
+    "Et ca c'est la phrase numero 3": {
+      "translation": "Et ca c'est la phrase numero 3",
+      "source_lang": "FR"
+    },
+    "Let's see if we can translate french into french": {
+      "translation": "Voyons si nous pouvons traduire le français en français",
+      "source_lang": "EN"
+    }
+  }
+}

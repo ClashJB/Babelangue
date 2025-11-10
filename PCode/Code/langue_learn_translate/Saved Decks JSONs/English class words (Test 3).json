@@ -1,0 +1,34 @@
+{
+  "name": "English class words (Test 3)",
+  "target_lang": "DE",
+  "cards": {
+    "contemporary": {
+      "translation": "zeitgemäß",
+      "source_lang": "EN"
+    },
+    "wellfare": {
+      "translation": "Wohlfahrt",
+      "source_lang": "NB"
+    },
+    "daintly": {
+      "translation": "zierlich",
+      "source_lang": "EN"
+    },
+    "shanties": {
+      "translation": "Hütten",
+      "source_lang": "NL"
+    },
+    "defiance": {
+      "translation": "Trotz",
+      "source_lang": "IT"
+    },
+    "verticies": {
+      "translation": "Scheitelpunkte",
+      "source_lang": "EN"
+    },
+    "to stride off": {
+      "translation": "ausschreiten",
+      "source_lang": "EN"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+name = "    ".lstrip()
+print(name)
