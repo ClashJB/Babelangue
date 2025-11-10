@@ -1,0 +1,4 @@
+parlor = input("Say something!")
+parlor = parlor.replace(" ", "...")
+
+print(parlor)

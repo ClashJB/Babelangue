@@ -1,0 +1,14 @@
+{
+  "name": "France Summer Vacation 2025 (Test 1)",
+  "target_lang": "FR",
+  "cards": {
+    "I really don't know any french.": {
+      "translation": "Je ne connais vraiment pas le français.",
+      "source_lang": "EN"
+    },
+    "Mister pls stop smoking! We are in a school.": {
+      "translation": "Monsieur, arrêtez de fumer ! Nous sommes dans une école.",
+      "source_lang": "EN"
+    }
+  }
+}
