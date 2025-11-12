@@ -407,8 +407,11 @@ def main():
 
 # New Deck mode:
         elif deck_mode == "n": 
-            deck, langs = new_deck_mode()
-            add_cards_mode(deck, langs, new_deck= True)
+            deck_name, langs = new_deck_mode()
+            deck_name = deck_name + ".csv"
+            deck = Deck(csv_file=deck_name, langs=langs)
+            # It could go into load Decks from here on.
+            deck.add_cards_mode(deck, langs, new_deck= True)
         else:
             sys.exit()
 
