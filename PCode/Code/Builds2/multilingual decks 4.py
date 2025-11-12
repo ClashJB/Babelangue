@@ -123,16 +123,18 @@ class Deck:
                 n_due += 1
         return n_cards, n_due
     
-    def train(self, from_langs, to_langs):
-        with open (self.csv_file, "w", newline="", encoding="utf-8") as deck:
+    def save(self):
+        with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
             writer = csv.DictWriter(deck, self.fieldnames)
-            writer.writeheader()
+            for card in self.cards:
+                writer.writerow(card.row)
+    
+    def train(self, from_langs, to_langs):
+
         exit_mode = False
         for card in self.cards:
             if not datetime.today() >= card.next_review or exit_mode:
-                with open (self.csv_file, "a", newline="", encoding="utf-8") as deck:
-                    writer = csv.DictWriter(deck, self.fieldnames)
-                    writer.writerow(card.save_row())
+                card.save_row()
             else:
                 q = []
                 a = []
@@ -162,13 +164,39 @@ class Deck:
                 # schedule next review
                 interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card.box, 30)
                 card.next_review = datetime.today() + timedelta(days=interval_days)
+
+                card.save_row()
+
+    def add_cards_mode(self):
+        while True:
+            user_input = input(">")
+            if not user_input:
+                break
+
+            row, source_lang = translate(user_input, self.langs)
+            
+            while True:
+                for lang, result in row.items():
+                    if lang == source_lang:
+                        print(f"{source_lang} | {result}")
+                    else:
+                        pass
+                for lang, result in row.items():
+                        if lang == source_lang:
+                            pass
+                        else:
+                            print(f"--{lang}--> {result}")
                 
-                with open (self.csv_file, "a", newline="", encoding="utf-8") as deck:
-                    writer = csv.DictWriter(deck, self.fieldnames)
-                    writer.writerow(card.save_row())
+                edit_lang = input("Edit: ")
+                if not edit_lang:
+                    break
+                elif edit_lang in self.langs:
+                    row[edit_lang] = input(f"Edit card side (current: {row[edit_lang]}): ")
+
+            self.cards.append(Flashcard(row=row))
 
 
-def add_langs():  #maybe Deck Class
+def add_langs():  #maybe Deck Class / in progress
     print("Please enter all the languages.")
     langs = []
     while True:
@@ -236,9 +264,7 @@ def new_deck_mode():
     langs = add_langs()
     return deck, langs
 
-
-
-
+'''
 def add_cards_mode(deck, langs, new_deck= False):  #put in deck Class
     if new_deck == True:
         filemode = "w"
@@ -276,7 +302,7 @@ def add_cards_mode(deck, langs, new_deck= False):  #put in deck Class
                 writer.writerow(row)
         except EOFError:
             sys.exit()
-
+'''
 def print_cards(file): #for deck Class
     with open(file, mode="r", newline="") as deck:
         reader = csv.DictReader(deck)
@@ -326,40 +352,38 @@ def main():
                     print(f"Number is out of range. Choose number from 1 to {len(info)}")
 
             while True:
-                mode = input("\nEnter your mode. [A]dd cards | [S]how cards | [T]rain deck | [Q]uit deck\nMode: ").strip().lower()
+                mode = input("\nEnter your mode. [A]dd cards | [S]how cards | [T]rain deck | Save and [Q]uit deck\nMode: ").strip().lower()
                 if mode == "a":
                     langs = deck.langs
-                    add_cards_mode(deck, langs)
+                    deck.add_cards_mode()
                 elif mode == "q":
+                    deck.save()
                     break
                 elif mode == "s":
                     print(deck)
                     print_cards(deck)
                     existing_edit_deck_mode(deck)
                 elif mode == "t":
-                    train_deck = Deck(deck)
-                    print("Available languages:")
-                    langs = train_deck.get_langs()
-                    for lang in langs:
+                    for lang in deck.langs:
                         print(lang)
 
                     from_langs = []
                     to_langs = []
 
                     while True:
-                        if (len(langs) - len(from_langs)) == 1:
+                        if (len(deck.langs) - len(from_langs)) == 1:
                             break
                         from_lang = input("from which language(s) do you want to learn? (end with Enter) ").upper()
                         if not from_lang and len(from_langs) >= 1:
                             break
-                        elif from_lang in langs:
+                        elif from_lang in deck.langs:
                             from_langs.append(from_lang)
                         else:
                             print("Please try again.")
 
                     while True:
-                        if (len(langs) - len(from_langs) - len(to_langs)) == 1:
-                            for lang in langs:
+                        if (len(deck.langs) - len(from_langs) - len(to_langs)) == 1:
+                            for lang in deck.langs:
                                 if not lang in from_langs and not lang in to_langs:
                                     to_langs.append(lang)
                                     stop = True
@@ -369,7 +393,7 @@ def main():
                         to_lang = input("What will be your answer language? (end with Enter) ").upper()
                         if not to_lang and len(to_langs) >= 1:
                             break
-                        elif to_lang in langs and not to_lang in from_langs:
+                        elif to_lang in deck.langs and not to_lang in from_langs:
                             to_langs.append(to_lang)
                         else:
                             print("Please try again.")
@@ -377,7 +401,7 @@ def main():
                     print(f"Question language(s): {", ".join(from_langs)}")
                     print(f"Answer language(s): {", ".join(to_langs)}")
 
-                    train_deck.train(from_langs= from_langs, to_langs= to_langs)
+                    deck.train(from_langs= from_langs, to_langs= to_langs)
 
 
 
