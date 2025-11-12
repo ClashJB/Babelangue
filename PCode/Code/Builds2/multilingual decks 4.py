@@ -1,11 +1,11 @@
 import deepl
 import csv
 import sys
-import re
 import pyfiglet
 import glob
 import pandas
 from datetime import datetime, timedelta
+from pynput import keyboard
 
 auth_key = "7053ad0d-f006-4202-aeb4-b96400b68c58:fx"
 if not auth_key:
@@ -98,6 +98,13 @@ class Deck:
         self.fieldnames = ["next_review", "last_review", "box"] + self.langs
         self.n_cards, self.n_due = self.learn_information()
 
+
+    def load_from_csv(self, csv_file):
+        with open(csv_file, encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            return [Flashcard(row) for row in reader]
+        
+
     def get_langs(self):
             with open(self.csv_file , mode="r", newline="") as file:
                 reader = csv.DictReader(file)
@@ -136,15 +143,16 @@ class Deck:
                 
                 try:
                     print(f"Front Side: {"   |   ".join(q)}")
-                    msvcrt.getch()
-                    print(f" Back Side: {"   |   ".join(a)}")
-                    guess = msvcrt.getch()
-                    if guess == b"x":
-                        raise EOFError
-            
-                    if guess == b" ":
+                    if input() or not input():
+                        print(f" Back Side: {"   |   ".join(a)}")
+    
+                    guess = input("Did you know it? [Y]es or [No]?").strip().lower()
+                    
+                    if guess == "y":
                         print("Good job!")
                         card.box += 1
+                    elif guess == "x":
+                        raise EOFError
                     else:
                         print("Don't worry you'll get it next time.")
                         card.box = 1
@@ -196,15 +204,17 @@ def fix_langs(source_lang):  #maybe deck Class
 
 def decks_info(): #redone & classless
     deck_files = glob.glob("*.csv")
-    decks_info = []
+    info = []
+    if not deck_files:
+        return None
     for f in deck_files:
         deck = Deck(f)
         langs = deck.langs
         row_count = len(deck.cards)
         name = deck.csv_file
         
-        decks_info.append((name, row_count, langs))
-    return decks_info
+        info.append((name, row_count, langs))
+    return info
 
 def print_decklist(decks_info): #Could be put into Deck, but unnecessary
     print("\nDecks found:")
@@ -298,23 +308,27 @@ def main():
 
 # Existing Deck mode:
         if deck_mode == "l": 
-            decks_info = decks_info()
-            print_decklist(decks_info)
+            info = decks_info()
+            if not info:
+                print("Couldn't find any decks.")
+                break
+            print_decklist(info)
             while True:
                 try:
                     choice = int(input("\nWhich file do you want to open?\nEnter a number: "))
-                    deck = decks_info[choice - 1][0]
-                    print(deck)
+                    deck_choice = info[choice - 1][0]
+                    deck = Deck(deck_choice)
+                    print(deck.csv_file)
                     break
                 except (ValueError):
                     print("Please enter a number.")
                 except IndexError:
-                    print(f"Number is out of range. Choose number from 1 to {len(decks_info)}")
+                    print(f"Number is out of range. Choose number from 1 to {len(info)}")
 
             while True:
                 mode = input("\nEnter your mode. [A]dd cards | [S]how cards | [T]rain deck | [Q]uit deck\nMode: ").strip().lower()
                 if mode == "a":
-                    langs = get_langs(deck)
+                    langs = deck.langs
                     add_cards_mode(deck, langs)
                 elif mode == "q":
                     break
@@ -379,16 +393,14 @@ if __name__ == "__main__":
     main()
 
 
-# Edit existing cards??? CHECK
+
     # In [S]how cards: 'To edit card, enter its number: KINDA CHECK
     # When translating: 'Enter result lang to edit result: '  CHECK
 # add deck langs to load deck output???  CHECK
 # Non-translate mode
-# Train mode
-    # feedback system (maybe from 0-1)
-    # False responses are asked again at the end
-    
-# EOFError and in general the exception policy of the program.
-# empty .csv files break the list, because they don't have fieldnames
-# Error message when decks don't have cards or enter edit mode directly
-# Tabulate and pandas integration
+
+# ERRORS and more:    
+    # EOFError and in general the exception policy of the program.
+    # empty .csv files break the list, because they don't have fieldnames
+    # Error message when decks don't have cards or enter edit mode directly
+    # Tabulate and pandas integration
