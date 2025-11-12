@@ -12,7 +12,6 @@ if not auth_key:
     raise ValueError("Missing DeepL API key. Please set DEEPL_API_KEY in your environment.")
 deepl_client = deepl.DeepLClient(auth_key)
 
-
 langs = []
 temp_langs = []
 target_langues = {
@@ -44,9 +43,6 @@ target_langues = {
     "vietnamese": "VI"
 }
 
-deck = "multideck1.csv"
-
-
 def startup():
     print(pyfiglet.figlet_format("BABELANGUE", font="chunky"))
     build = sys.argv[0]
@@ -71,13 +67,18 @@ class Flashcard:
         try:
             if self.row["next_review"]:
                 return pandas.to_datetime(self.row["next_review"])
+            else:
+                return datetime(1767, 1, 1)
         except KeyError:
             return datetime.today()
 
     def get_last_review(self):
+        print(self.row)
         try:
             if self.row["last_review"]:
                 return pandas.to_datetime(self.row["last_review"])
+            else:
+                return datetime(1767, 1, 1)
         except KeyError:
             return datetime(1767, 1, 1)
         
@@ -119,6 +120,7 @@ class Deck:
         n_due = 0
         for card in self.cards:
             n_cards += 1
+
             if datetime.today() >= card.next_review:
                 n_due += 1
         return n_cards, n_due
@@ -126,11 +128,11 @@ class Deck:
     def save(self):
         with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
             writer = csv.DictWriter(deck, self.fieldnames)
+            writer.writeheader()
             for card in self.cards:
                 writer.writerow(card.row)
     
     def train(self, from_langs, to_langs):
-
         exit_mode = False
         for card in self.cards:
             if not datetime.today() >= card.next_review or exit_mode:
@@ -145,7 +147,8 @@ class Deck:
                 
                 try:
                     print(f"Front Side: {"   |   ".join(q)}")
-                    if input() or not input():
+                    t_inp = input()
+                    if t_inp or not t_inp:
                         print(f" Back Side: {"   |   ".join(a)}")
     
                     guess = input("Did you know it? [Y]es or [No]?").strip().lower()
@@ -196,7 +199,7 @@ class Deck:
             self.cards.append(Flashcard(row=row))
 
 
-def add_langs():  #maybe Deck Class / in progress
+def add_langs():  #It's good where it is.
     print("Please enter all the languages.")
     langs = []
     while True:
@@ -264,45 +267,6 @@ def new_deck_mode():
     langs = add_langs()
     return deck, langs
 
-'''
-def add_cards_mode(deck, langs, new_deck= False):  #put in deck Class
-    if new_deck == True:
-        filemode = "w"
-    elif new_deck == False:
-        filemode = "a"
-    with open(deck, filemode, newline="", encoding="utf-8") as deck:
-        writer = csv.DictWriter(deck, fieldnames= langs)
-        if new_deck:
-            writer.writeheader()
-        try:
-            while True:
-                user_input = input(">")
-                if not user_input:
-                    break
-
-                row, source_lang = translate(user_input, langs)
-
-                while True:
-                    for lang, result in row.items():
-                        if lang == source_lang:
-                            print(f"{source_lang} | {result}")
-                        else:
-                            pass
-                    for lang, result in row.items():
-                            if lang == source_lang:
-                                pass
-                            else:
-                                print(f"--{lang}--> {result}")
-                    
-                    edit_lang = input("Edit: ")
-                    if not edit_lang:
-                        break
-                    elif edit_lang in langs:
-                        row[edit_lang] = input(f"Edit card side (current: {row[edit_lang]}): ")
-                writer.writerow(row)
-        except EOFError:
-            sys.exit()
-'''
 def print_cards(file): #for deck Class
     with open(file, mode="r", newline="") as deck:
         reader = csv.DictReader(deck)
@@ -311,7 +275,7 @@ def print_cards(file): #for deck Class
             for lang, result in row.items():
                 print(f"    {lang} | {result}")
 
-def existing_edit_deck_mode(deck): #I guess it's for Deck Class
+def existing_edit_deck_mode(deck): #it's for Deck Class
     pd_deck = pandas.read_csv(deck)
     while True:
         card_number = input("\nTo edit, enter card number: ")
