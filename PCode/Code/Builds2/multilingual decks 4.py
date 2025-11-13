@@ -90,12 +90,14 @@ class Flashcard:
 
 class Deck:
     def __init__(self, csv_file, langs=None):
-        self.cards = self.load_from_csv(csv_file)
         self.csv_file = csv_file
         if langs:
             self.langs = langs
+            self.fieldnames = ["next_review", "last_review", "box"] + self.langs
+            self.save()
         else:
             self.langs = self.get_langs()
+        self.cards = self.load_from_csv(csv_file)
         self.fieldnames = ["next_review", "last_review", "box"] + self.langs
         self.n_cards, self.n_due = self.learn_information()
 
@@ -129,8 +131,11 @@ class Deck:
         with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
             writer = csv.DictWriter(deck, self.fieldnames)
             writer.writeheader()
-            for card in self.cards:
-                writer.writerow(card.row)
+            try:
+                for card in self.cards:
+                    writer.writerow(card.row)
+            except AttributeError:
+                pass
     
     def train(self, from_langs, to_langs):
         exit_mode = False
@@ -203,7 +208,6 @@ def add_langs():  #It's good where it is.
     print("Please enter all the languages.")
     langs = []
     while True:
-        
         try:
             l_input = input("Add a language: ").strip().lower()
             if not l_input and 1 < len(langs):
@@ -293,8 +297,13 @@ def existing_edit_deck_mode(deck): #it's for Deck Class
 
 def main():
     startup()
+    skip_to_load = False
     while True:
-        deck_mode = input("\n[N]ew deck | [L]oad deck | [Q]uit Program\nInput: ").strip().lower()
+        if not skip_to_load:
+            deck_mode = input("\n[N]ew deck | [L]oad deck | [Q]uit Program\nInput: ").strip().lower()
+        else:
+            deck_mode = "l"
+            skip_to_load = False
 
 # Existing Deck mode:
         if deck_mode == "l": 
@@ -372,10 +381,9 @@ def main():
 # New Deck mode:
         elif deck_mode == "n": 
             deck_name, langs = new_deck_mode()
-            deck_name = deck_name + ".csv"
+            deck_name
             deck = Deck(csv_file=deck_name, langs=langs)
-            # It could go into load Decks from here on.
-            deck.add_cards_mode(deck, langs, new_deck= True)
+            skip_to_load = True
         else:
             sys.exit()
 
