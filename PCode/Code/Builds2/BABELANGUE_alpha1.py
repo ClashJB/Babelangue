@@ -5,7 +5,6 @@ import pyfiglet
 import glob
 import pandas
 from datetime import datetime, timedelta
-from pynput import keyboard
 
 auth_key = "7053ad0d-f006-4202-aeb4-b96400b68c58:fx"
 if not auth_key:
