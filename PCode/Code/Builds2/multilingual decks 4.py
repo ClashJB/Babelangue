@@ -73,7 +73,6 @@ class Flashcard:
             return datetime.today()
 
     def get_last_review(self):
-        print(self.row)
         try:
             if self.row["last_review"]:
                 return pandas.to_datetime(self.row["last_review"])
@@ -127,6 +126,16 @@ class Deck:
                 n_due += 1
         return n_cards, n_due
     
+    def print_cards(self):
+        for i, card in enumerate(self.cards, start=1):
+            print(f"Card {i}:")
+            for lang, result in card.row.items():
+                if lang in ["next_review", "last_review", "box"]:
+                    pass
+                else:
+                    print(f"    {lang} | {result}")
+
+    
     def save(self):
         with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
             writer = csv.DictWriter(deck, self.fieldnames)
@@ -179,6 +188,7 @@ class Deck:
         while True:
             user_input = input(">")
             if not user_input:
+                self.save()
                 break
 
             row, source_lang = translate(user_input, self.langs)
@@ -195,7 +205,7 @@ class Deck:
                         else:
                             print(f"--{lang}--> {result}")
                 
-                edit_lang = input("Edit: ")
+                edit_lang = input("Edit: ").upper()
                 if not edit_lang:
                     break
                 elif edit_lang in self.langs:
@@ -203,6 +213,37 @@ class Deck:
 
             self.cards.append(Flashcard(row=row))
 
+    def edit_deck_mode(self):
+        self.print_cards()
+        while True:
+            card_number = input("\nTo edit, enter card number: ").strip()
+            if not card_number:
+                break
+            try:
+                card_number = int(card_number) - 1
+                if not 0 < card_number <= len(self.cards):
+                    raise ValueError
+            except ValueError:
+                print(f"Please input a number from 1 - {len(self.cards)}")
+            
+            card = self.cards[card_number]
+            card.row
+            print(f"Card {card_number + 1}:")
+            for lang, result in card.row.items():
+                if lang in ["next_review", "last_review", "box"]:
+                    pass
+                else:
+                    print(f"    {lang} | {result}")
+
+            while True:
+                lang = input("\nEnter the language of the card side you wish to edit or press [X] to delete card: ").upper()
+                if not lang:
+                    break
+                elif lang == "X":
+                    self.cards.pop(card_number)
+                    break
+                elif lang in self.langs:
+                    card.row[lang] = input(f"Edit card side (current: {card.row[lang]} ): ")
 
 def add_langs():  #It's good where it is.
     print("Please enter all the languages.")
@@ -237,7 +278,7 @@ def fix_langs(source_lang):  #maybe deck Class
     else:
         return source_lang
 
-def decks_info(): #redone & classless
+def decks_info(): #redone & uses classes
     deck_files = glob.glob("*.csv")
     info = []
     if not deck_files:
@@ -271,29 +312,6 @@ def new_deck_mode():
     langs = add_langs()
     return deck, langs
 
-def print_cards(file): #for deck Class
-    with open(file, mode="r", newline="") as deck:
-        reader = csv.DictReader(deck)
-        for i, row in enumerate(reader):
-            print(f"Card {i + 1}:")
-            for lang, result in row.items():
-                print(f"    {lang} | {result}")
-
-def existing_edit_deck_mode(deck): #it's for Deck Class
-    pd_deck = pandas.read_csv(deck)
-    while True:
-        card_number = input("\nTo edit, enter card number: ")
-        if not card_number:
-            break
-        card_number = int(card_number) - 1
-        print(pd_deck.loc[[card_number]])
-        while True:
-            pd_lang = input("\nEnter the language of the card side you wish to edit: ").upper()
-            if not pd_lang:
-                break
-            if pd_lang in pd_deck.loc[0]:
-                pd_deck.loc[card_number, pd_lang] = input(f"Edit card side (current: {pd_deck.loc[card_number, pd_lang]}): ")
-                pd_deck.to_csv(deck, index=False)
 
 def main():
     startup()
@@ -333,9 +351,9 @@ def main():
                     deck.save()
                     break
                 elif mode == "s":
-                    print(deck)
-                    print_cards(deck)
-                    existing_edit_deck_mode(deck)
+                    print(deck.csv_file)
+                    deck.edit_deck_mode()
+                    #existing_edit_deck_mode(deck)
                 elif mode == "t":
                     for lang in deck.langs:
                         print(lang)
