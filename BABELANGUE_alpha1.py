@@ -59,6 +59,8 @@ class Flashcard:
         try:
             if self.row["box"]:
                 return int(self.row["box"])
+            else:
+                return 1
         except KeyError:
             return 1
 
@@ -148,6 +150,7 @@ class Deck:
     def train(self, from_langs, to_langs):
         exit_mode = False
         for card in self.cards:
+            print(card.box)
             if not datetime.today() >= card.next_review or exit_mode:
                 card.save_row()
             else:
