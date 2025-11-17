@@ -7,39 +7,67 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return render_template("index.html")
-
 @app.route("/translator", methods=["GET", "POST"])
 def translator():
     deck_files = [f for f in os.listdir("data") if f.endswith(".csv")]
 
+    selected_deck = None
+    deck_langs = None
+    translations = None
+    source_lang = None
+    text = None
+    saved = False
+
     if request.method == "POST":
-        deck_name = request.form.get("deck")
+        action = request.form.get("action")  # translate OR save
+        selected_deck = request.form.get("deck")
         text = request.form.get("text")
 
-        deck_langs = None
-        translations = None
-        source_lang = None
+        if not selected_deck:
+            return render_template("translator.html", decks=deck_files, error="Please select a deck.")
 
-        if deck_name:
-            deck_path = os.path.join("data", deck_name)
-            deck = Deck(deck_path)
-            deck_langs = deck.langs
+        deck_path = os.path.join("data", selected_deck)
+        deck = Deck(deck_path)
+        deck_langs = deck.langs
 
+        # --- SAVE CARD ---
+        if action == "save":
+            if not text:
+                return render_template("translator.html", decks=deck_files, error="No text to save!")
+
+            row, _ = translate(text, deck_langs)
+            clean_row = {lang: str(row[lang]) for lang in deck_langs}
+
+            deck.cards.append(Flashcard(row=clean_row))
+            deck.save()
+            saved = True
+
+            return render_template(
+                "translator.html",
+                decks=deck_files,
+                selected_deck=selected_deck,
+                deck_langs=deck_langs,
+                saved=saved
+            )
+
+        # --- TRANSLATE ---
+        if action == "translate":
             if text:
-                row, source_lang = translate(text, deck.langs)
-                translations = {lang: str(row[lang]) for lang in deck.langs}
+                row, source_lang = translate(text, deck_langs)
+                translations = {lang: str(row[lang]) for lang in deck_langs}
 
         return render_template(
             "translator.html",
             decks=deck_files,
-            selected_deck=deck_name,
+            selected_deck=selected_deck,
             deck_langs=deck_langs,
-            source_lang=source_lang,
             translations=translations,
-            text=text
+            source_lang=source_lang,
+            text=text,
+            saved=saved
         )
-    return render_template("translator.html", decks=deck_files)
 
+    return render_template("translator.html", decks=deck_files)
 
 @app.route("/save_card", methods=["POST"])
 def save_card():
