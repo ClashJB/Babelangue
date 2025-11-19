@@ -75,38 +75,39 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Text to translate:</label>
-                <textarea class="form-control" name="text" rows="3" required>{{ text }}</textarea>
+                <input type="text" name="text" class="form-control" required>
             </div>
 
             <button type="submit" class="btn btn-primary">Translate</button>
         </form>
 
         <!-- ============ TRANSLATION RESULTS ============ -->
+
         {% if translations %}
 
+        <!-- ============ TRANSLATION RESULTS ============ -->
         <hr class="mt-4">
         <h4>Detected Source Language: <strong>{{ source_lang }}</strong></h4>
 
-        <h5 class="mt-3">Translations:</h5>
-        <ul class="list-group">
-            {% for lang, tr in translations.items() %}
-            <li class="list-group-item d-flex justify-content-between">
-                <span>{{ lang }}</span>
-                <span>{{ tr }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- ============ SAVE CARD FORM ============ -->
+        <!-- Editable Translation Fields -->
         <form method="POST" class="mt-3">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="deck" value="{{ selected_deck }}">
             <input type="hidden" name="text" value="{{ text }}">
 
+            {% for lang, tr in translations.items() %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">{{ lang }}</label>
+                <input type="text" class="form-control" name="edited_{{ lang }}" value="{{ tr }}">
+            </div>
+            {% endfor %}
+
             <button type="submit" class="btn btn-success">Save as Card</button>
         </form>
 
         {% endif %}
+
+
 
     </div>
 
