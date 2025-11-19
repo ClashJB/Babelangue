@@ -30,13 +30,11 @@ def translator():
         deck = Deck(deck_path)
         deck_langs = deck.langs
 
-        # --- SAVE CARD ---
         if action == "save":
-            if not text:
-                return render_template("translator.html", decks=deck_files, error="No text to save!")
+            clean_row = {}
 
-            row, _ = translate(text, deck_langs)
-            clean_row = {lang: str(row[lang]) for lang in deck_langs}
+            for lang in deck_langs:
+                clean_row[lang] = request.form.get(f"edited_{lang}")
 
             deck.cards.append(Flashcard(row=clean_row))
             deck.save()
@@ -47,7 +45,7 @@ def translator():
                 decks=deck_files,
                 selected_deck=selected_deck,
                 deck_langs=deck_langs,
-                saved=saved
+                saved=True
             )
 
         # --- TRANSLATE ---
@@ -55,7 +53,7 @@ def translator():
             if text:
                 row, source_lang = translate(text, deck_langs)
                 translations = {lang: str(row[lang]) for lang in deck_langs}
-
+        
         return render_template(
             "translator.html",
             decks=deck_files,
