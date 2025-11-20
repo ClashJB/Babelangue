@@ -77,7 +77,8 @@
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Translate</button>
                 <button type="button" class="btn btn-success" id="saveBtn" {% if not translations %}disabled{% endif %}
-                    onclick="document.getElementById('saveForm').submit();">Save as Card</button>
+                    onclick="document.getElementById('saveForm').submit();">Save as Card <small
+                        class="opacity-75">(Ctrl+Enter)</small></button>
             </div>
         </form>
 
@@ -95,9 +96,23 @@
 
             {% for lang, tr in translations.items() %}
             <div class="input-group mb-3">
-                <span class="input-group-text" id="basic-addon1">{{ lang }}</span>
-                <input type="text" class="form-control" name="edited_{{ lang }}" value="{{ tr }}"
-                    aria-describedby="basic-addon1">
+                <span class="input-group-text">{{ lang }}</span>
+                <input type="text" class="form-control" id="input_{{ lang }}" name="edited_{{ lang }}" value="{{ tr }}">
+                <button class="btn btn-outline-secondary" type="button"
+                    onclick="loadDefinitions('{{ lang }}', '{{ tr }}')">
+                    📖 Define
+                </button>
+            </div>
+            <!-- Definition dropdown for this language -->
+            <div id="definitions_{{ lang }}" class="mb-3" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Select a definition to append:</h6>
+                        <div id="def_list_{{ lang }}" class="d-flex flex-column gap-2">
+                            <!-- Definitions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </form>
@@ -105,6 +120,79 @@
         {% endif %}
 
     </div>
+
+    <script>
+        // Hotkey: Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to save card
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const saveBtn = document.getElementById('saveBtn');
+                if (!saveBtn.disabled) {
+                    e.preventDefault();
+                    document.getElementById('saveForm').submit();
+                }
+            }
+        });
+
+        // Load definitions for a word
+        async function loadDefinitions(lang, word) {
+            const defContainer = document.getElementById('definitions_' + lang);
+            const defList = document.getElementById('def_list_' + lang);
+
+            // Toggle visibility
+            if (defContainer.style.display === 'block') {
+                defContainer.style.display = 'none';
+                return;
+            }
+
+            // Show loading state
+            defContainer.style.display = 'block';
+            defList.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading definitions...';
+
+            try {
+                // Fetch definitions from backend
+                const response = await fetch('/get_definitions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word: word,
+                        lang: lang
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    defList.innerHTML = `<div class="alert alert-warning mb-0">${data.error}</div>`;
+                    return;
+                }
+
+                // Display definitions as clickable buttons
+                if (data.definitions && data.definitions.length > 0) {
+                    defList.innerHTML = data.definitions.map((def, index) =>
+                        `<button type="button" class="btn btn-sm btn-outline-primary text-start" onclick="appendDefinition('${lang}', '${def.replace(/'/g, "\\'")}')">
+                            ${def}
+                        </button>`
+                    ).join('');
+                } else {
+                    defList.innerHTML = '<div class="alert alert-info mb-0">No definitions found.</div>';
+                }
+            } catch (error) {
+                defList.innerHTML = '<div class="alert alert-danger mb-0">Error loading definitions.</div>';
+                console.error('Error:', error);
+            }
+        }
+
+        // Append selected definition to the translation input
+        function appendDefinition(lang, definition) {
+            const input = document.getElementById('input_' + lang);
+            input.value = input.value + ' (' + definition + ')';
+
+            // Hide the definitions panel
+            document.getElementById('definitions_' + lang).style.display = 'none';
+        }
+    </script>
 
 </body>
 

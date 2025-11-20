@@ -1,1 +1,0 @@
-- Move 'Save as Card' button to a better place and assign a hotkey to it.
