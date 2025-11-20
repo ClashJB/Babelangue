@@ -103,13 +103,12 @@
                     📖 Define
                 </button>
             </div>
-            <!-- Definition dropdown for this language -->
+            <!-- definition dropdown -->
             <div id="definitions_{{ lang }}" class="mb-3" style="display: none;">
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-title">Select a definition to append:</h6>
                         <div id="def_list_{{ lang }}" class="d-flex flex-column gap-2">
-                            <!-- Definitions will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -122,7 +121,7 @@
     </div>
 
     <script>
-        // Hotkey: Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to save card
+        // Ctrl + enter
         document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 const saveBtn = document.getElementById('saveBtn');
@@ -133,23 +132,20 @@
             }
         });
 
-        // Load definitions for a word
+        // definitions
         async function loadDefinitions(lang, word) {
             const defContainer = document.getElementById('definitions_' + lang);
             const defList = document.getElementById('def_list_' + lang);
 
-            // Toggle visibility
+            // visibility
             if (defContainer.style.display === 'block') {
                 defContainer.style.display = 'none';
                 return;
             }
 
-            // Show loading state
-            defContainer.style.display = 'block';
-            defList.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading definitions...';
 
             try {
-                // Fetch definitions from backend
+                // get definitions
                 const response = await fetch('/get_definitions', {
                     method: 'POST',
                     headers: {
@@ -168,7 +164,7 @@
                     return;
                 }
 
-                // Display definitions as clickable buttons
+                // show definitions
                 if (data.definitions && data.definitions.length > 0) {
                     defList.innerHTML = data.definitions.map((def, index) =>
                         `<button type="button" class="btn btn-sm btn-outline-primary text-start" onclick="appendDefinition('${lang}', '${def.replace(/'/g, "\\'")}')">
@@ -184,12 +180,12 @@
             }
         }
 
-        // Append selected definition to the translation input
+        // add definition to field
         function appendDefinition(lang, definition) {
             const input = document.getElementById('input_' + lang);
             input.value = input.value + ' (' + definition + ')';
 
-            // Hide the definitions panel
+            // hide panel
             document.getElementById('definitions_' + lang).style.display = 'none';
         }
     </script>

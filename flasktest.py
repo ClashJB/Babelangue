@@ -8,7 +8,7 @@ def expand_languages(d=dict, values=list):
     return [inverse[val].capitalize() for val in values if val in inverse]
 
 
-# convert DeepL APU code to freedictionary API format
+# DeepL APU code to freedictionary API format
 def lang_code_to_dict_api(lang_code):
     mapping = {
         'EN-US': 'en',
@@ -119,7 +119,6 @@ def get_definitions_route():
     if not word or not lang_code:
         return jsonify({'error': 'Missing word or language'}), 400
     
-    # Convert language code to dictionary API format
     api_lang = lang_code_to_dict_api(lang_code)
     
     try:
