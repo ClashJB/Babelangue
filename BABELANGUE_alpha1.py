@@ -315,22 +315,36 @@ def translate(input, langs):
         print("The detected language does not match your deck languages, but we tried our best translating them quand-meme.")
     return row, source_lang
 
-def get_definitions(word, language="en"):
-    url = f"https://api.dictionaryapi.dev/api/v2/entries/{language}/{word}"
-    response = requests.get(url).json()
-    
-    if isinstance(response, dict):  # API returns dict on error
-        return [response.get("message")]
-
-    definitions = []
-
-    for meaning in response[0]["meanings"]:
-        part_of_speech = meaning["partOfSpeech"]
-        for d in meaning["definitions"]:
-            definition = d["definition"]
-            definitions.append(f"{part_of_speech}: {definition}")
-
-    return definitions
+def get_definitions(word, language):
+    url = f"https://freedictionaryapi.com/api/v1/entries/{language}/{word}"
+    try:
+        response = requests.get(url)
+        
+        if response.status_code != 200:
+            return ["Word not found"]
+        
+        data = response.json()
+        
+        if isinstance(data, dict) and ("error" in data or "message" in data):
+            return [data.get("message", data.get("error", "No definition found"))]
+        
+        if not isinstance(data, dict) or "entries" not in data:
+            return ["No definitions found"]
+        
+        definitions = []
+        
+        for entry in data["entries"]:
+            part_of_speech = entry.get("partOfSpeech", "unknown")
+            
+            for sense in entry.get("senses", []):
+                definition = sense.get("definition", "")
+                if definition:
+                    definitions.append(f"{part_of_speech}: {definition}")
+        
+        return definitions if definitions else ["No definitions found"]
+        
+    except Exception as e:
+        return [f"Error: {str(e)}"]
 
 def new_deck_mode():
     deck = input("How would you like to name your new deck?\nName: ").strip() + ".csv"

@@ -34,7 +34,7 @@ def lang_code_to_dict_api(lang_code):
         'SL': 'sl',
         'SV': 'sv'
     }
-    return mapping.get(lang_code, 'en')
+    return mapping.get(lang_code)
 
 
 app = Flask(__name__)
@@ -123,7 +123,7 @@ def get_definitions_route():
     
     try:
         definitions = get_definitions(word, api_lang)
-        return jsonify({'definitions': definitions})
+        return jsonify({'definitions' : definitions})
     except Exception as e:
         return jsonify({'error': f'Could not fetch definitions: {str(e)}'}), 500
 
