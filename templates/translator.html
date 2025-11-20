@@ -57,10 +57,10 @@
 
         <!-- Show deck languages -->
         {% if deck_langs %}
-        <h5 class="mb-3">
+        <h6 class="mb-3">
             <small class="text-body-secondary">Languages in this deck:</small>
             {{deck_langs_text}}
-        </h5>
+        </h6>
 
         {% endif %}
 
@@ -100,10 +100,10 @@
                 <input type="text" class="form-control" id="input_{{ lang }}" name="edited_{{ lang }}" value="{{ tr }}">
                 <button class="btn btn-outline-secondary" type="button"
                     onclick="loadDefinitions('{{ lang }}', '{{ tr }}')">
-                    📖 Define
+                    Define
                 </button>
             </div>
-            <!-- definition dropdown -->
+            <!-- Definition dropdown for this language -->
             <div id="definitions_{{ lang }}" class="mb-3" style="display: none;">
                 <div class="card">
                     <div class="card-body">
@@ -143,6 +143,9 @@
                 return;
             }
 
+            // loading state
+            defContainer.style.display = 'block';
+            defList.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Loading definitions...';
 
             try {
                 // get definitions
@@ -180,7 +183,7 @@
             }
         }
 
-        // add definition to field
+        // Append to output
         function appendDefinition(lang, definition) {
             const input = document.getElementById('input_' + lang);
             input.value = input.value + ' (' + definition + ')';
