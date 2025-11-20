@@ -1,3 +1,1 @@
-- Make the 'Translate' button work by pressing enter.
-- Make the translation results editable.
 - Move 'Save as Card' button to a better place and assign a hotkey to it.
