@@ -1,8 +1,15 @@
 import os
 from flask import Flask, render_template, request
-from BABELANGUE_alpha1 import Deck, Flashcard, translate
+from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues
+
+
+def expand_languages(d=dict, values=list):
+    inverse = {v: k for k, v in d.items()}
+
+    return [inverse[val].capitalize() for val in values if val in inverse]
 
 app = Flask(__name__)
+
 
 @app.route("/")
 def index():
@@ -19,7 +26,7 @@ def translator():
     saved = False
 
     if request.method == "POST":
-        action = request.form.get("action")  # translate OR save
+        action = request.form.get("action")
         selected_deck = request.form.get("deck")
         text = request.form.get("text")
 
@@ -29,6 +36,10 @@ def translator():
         deck_path = os.path.join("data", selected_deck)
         deck = Deck(deck_path)
         deck_langs = deck.langs
+        deck_lang_words = expand_languages(target_langues, deck_langs)
+        deck_langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
+
+   
 
         if action == "save":
             clean_row = {}
@@ -45,10 +56,10 @@ def translator():
                 decks=deck_files,
                 selected_deck=selected_deck,
                 deck_langs=deck_langs,
+                deck_langs_text=deck_langs_text,
                 saved=True
             )
 
-        # --- TRANSLATE ---
         if action == "translate":
             if text:
                 row, source_lang = translate(text, deck_langs)
@@ -59,6 +70,7 @@ def translator():
             decks=deck_files,
             selected_deck=selected_deck,
             deck_langs=deck_langs,
+            deck_langs_text=deck_langs_text,
             translations=translations,
             source_lang=source_lang,
             text=text,
@@ -67,27 +79,6 @@ def translator():
 
     return render_template("translator.html", decks=deck_files)
 
-@app.route("/save_card", methods=["POST"])
-def save_card():
-    deck_name = request.form.get("deck")
-    text = request.form.get("text")
-
-    deck_path = os.path.join("data", deck_name)
-    deck = Deck(deck_path)
-
-    row, src_lang = translate(text, deck.langs)
-    clean_row = {lang: str(row[lang]) for lang in row}
-
-    deck.cards.append(Flashcard(row=clean_row))
-    deck.save()
-
-    return render_template(
-        "translator.html",
-        decks=[f for f in os.listdir("data") if f.endswith('.csv')],
-        selected_deck=deck_name,
-        deck_langs=deck.langs,
-        saved=True
-    )
 
 
 if __name__ == "__main__":

@@ -15,14 +15,17 @@
     <link rel="manifest" href="/static/site.webmanifest" />
 </head>
 
-<body class="bg-light">
-
+<body class="bg-light text-dark">
     <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/static/babelangue_logo.png" width="40" height="40" class="me-2">
+                <img src="/static/babelangue_logo.png" alt="Logo" width="40" height="40" class="me-2">
                 <span class="fw-bold">BABELANGUE</span>
             </a>
+            <div>
+                <a class="btn btn-primary me-2" href="/translator">Translator</a>
+                <a class="btn btn-outline-primary me-2" href="">Trainer</a>
+            </div>
         </div>
     </nav>
 
@@ -38,8 +41,7 @@
         <div class="alert alert-success">Card saved successfully!</div>
         {% endif %}
 
-        <!-- Translation Form -->
-        <!-- Auto-submit Deck Selection Form -->
+        <!--Auto submit deck Selection Form-->
         <form method="POST" id="deckForm">
             <div class="mb-3">
                 <label class="form-label fw-bold">Select a deck:</label>
@@ -55,20 +57,14 @@
 
         <!-- Show deck languages -->
         {% if deck_langs %}
-        <table class="table caption-top">
-            <caption>Languages in this deck:</caption>
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    {% for lang in deck_langs %}
-                    <th scope="col">{{ lang }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-        </table>
+        <h5 class="mb-3">
+            <small class="text-body-secondary">Languages in this deck:</small>
+            {{deck_langs_text}}
+        </h5>
+
         {% endif %}
 
-        <!-- ============ TRANSLATE FORM ============ -->
+        <!--translate form-->
         <form method="POST">
             <input type="hidden" name="action" value="translate">
             <input type="hidden" name="deck" value="{{ selected_deck }}">
@@ -81,15 +77,13 @@
             <button type="submit" class="btn btn-primary">Translate</button>
         </form>
 
-        <!-- ============ TRANSLATION RESULTS ============ -->
-
         {% if translations %}
 
-        <!-- ============ TRANSLATION RESULTS ============ -->
+        <!--results-->
         <hr class="mt-4">
         <h4>Detected Source Language: <strong>{{ source_lang }}</strong></h4>
 
-        <!-- Editable Translation Fields -->
+        <!--editable Translation Fields-->
         <form method="POST" class="mt-3">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="deck" value="{{ selected_deck }}">
