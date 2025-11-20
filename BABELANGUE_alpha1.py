@@ -4,6 +4,7 @@ import sys
 import pyfiglet
 import glob
 import pandas
+import requests
 from datetime import datetime, timedelta
 
 auth_key = "7053ad0d-f006-4202-aeb4-b96400b68c58:fx"
@@ -212,6 +213,11 @@ class Deck:
                     break
                 elif edit_lang in self.langs:
                     row[edit_lang] = input(f"Edit card side (current: {row[edit_lang]}): ")
+                elif edit_lang.strip().lower() == "define":
+                    if source_lang == "EN-US":
+                        source_lang = "EN"
+                    definitions = get_definitions(user_input, source_lang.lower())
+                    print(definitions)
 
             self.cards.append(Flashcard(row=row))
 
@@ -308,6 +314,23 @@ def translate(input, langs):
     if not source_lang in langs:
         print("The detected language does not match your deck languages, but we tried our best translating them quand-meme.")
     return row, source_lang
+
+def get_definitions(word, language="en"):
+    url = f"https://api.dictionaryapi.dev/api/v2/entries/{language}/{word}"
+    response = requests.get(url).json()
+    
+    if isinstance(response, dict):  # API returns dict on error
+        return [response.get("message")]
+
+    definitions = []
+
+    for meaning in response[0]["meanings"]:
+        part_of_speech = meaning["partOfSpeech"]
+        for d in meaning["definitions"]:
+            definition = d["definition"]
+            definitions.append(f"{part_of_speech}: {definition}")
+
+    return definitions
 
 def new_deck_mode():
     deck = input("How would you like to name your new deck?\nName: ").strip() + ".csv"
