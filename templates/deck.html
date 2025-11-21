@@ -34,18 +34,8 @@
         </div>
     </nav>
 
-    <div class="list-group list-group-numbered">
-        {% for (name, langs, n_due, n_cards, langs_text) in info %}
-        <a href="{{ url_for('deck_overview', deck=name) }}"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
-            <div class="ms-2 me-auto">
-                <div class="fw-bold">{{ name }}</div>
-                {{ langs_text }}
-            </div>
-            <span class="badge text-bg-primary rounded-pill">{{ n_due }}</span>
-        </a>
-        {% endfor %}
-    </div>
+    TRainer page
+
 
 </body>
 
