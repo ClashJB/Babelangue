@@ -107,7 +107,16 @@ class Deck:
         with open(csv_file, encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             return [Flashcard(row) for row in reader]
-        
+
+    def get_progress(self):
+        progress = [0, 0, 0, 0, 0]
+        for n in range(5):
+            for card in self.cards:
+                if (card.box - 1) == n:
+                    progress[n] += 1
+        return progress
+
+
 
     def get_langs(self):
             with open(self.csv_file , mode="r", newline="") as file:
@@ -123,9 +132,9 @@ class Deck:
         n_due = 0
         for card in self.cards:
             n_cards += 1
-
             if datetime.today() >= card.next_review:
                 n_due += 1
+
         return n_cards, n_due
     
     def print_cards(self):

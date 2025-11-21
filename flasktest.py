@@ -130,19 +130,20 @@ def get_definitions_route():
 
 @app.route("/trainer")
 def trainer():
-    deck_files = glob.glob("*.csv")
+    deck_files = os.listdir("data")
     info = []
 
     for f in deck_files:
-        deck = Deck(f)
-        name = deck.csv_file
+        deck_path = os.path.join("data", f)
+        deck = Deck(deck_path)
+        name = os.path.splitext(os.path.basename(deck.csv_file))[0]
         langs = deck.langs
         deck_lang_words = expand_languages(target_langues, langs)
         langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
         n_due = deck.n_due
         n_cards = deck.n_cards
         
-        info.append((name, langs, n_due, n_cards, langs_text))
+        info.append((name, langs, n_due, n_cards, langs_text, deck_path))
         
     return render_template(
         "trainer.html", 
@@ -151,7 +152,32 @@ def trainer():
 
 @app.route("/deck/<path:deck>")
 def deck_overview(deck):
-    return(render_template("deck.html"))
+    deck = Deck(deck)
+    name = os.path.splitext(os.path.basename(deck.csv_file))[0]
+    langs = deck.langs
+    deck_lang_words = expand_languages(target_langues, langs)
+    n_due = deck.n_due
+    n_cards = deck.n_cards
+    progress = []
+    n_box = deck.get_progress()
+    print(n_box)
+    for n in n_box:
+        try:
+            progress.append(round((n / n_cards) * 100))
+        except ZeroDivisionError:
+            progress.append(0)
+
+    print(progress)
+
+    return render_template(
+        "deck.html",
+        name=name,
+        deck_lang_words=deck_lang_words,
+        n_due=n_due,
+        n_cards=n_cards,
+        progress=progress,
+        n_box=n_box
+        )
 
 
 if __name__ == "__main__":
