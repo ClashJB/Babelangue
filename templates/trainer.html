@@ -29,25 +29,23 @@
             </a>
             <div>
                 <a class="btn btn-outline-primary me-2" href="/translator">Translator</a>
-                <a class="btn btn-outline-primary me-2" href="/trainer">Trainer</a>
+                <a class="btn btn-primary me-2" href="/trainer">Trainer</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container text-center mt-5">
-        <h1 class="display-5 fw-bold">Welcome to BABELANGUE</h1>
-        <p class="lead mt-3 mb-5">A multilingual vocabulary platform to translate, train, and learn efficiently.</p>
+    <ol class="list-group list-group-numbered">
+        {% for (name, langs, n_due, n_cards, langs_text) in info %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">{{ name }}</div>
+                {{ langs_text }}
+            </div>
+            <span class="badge text-bg-primary rounded-pill">{{ n_due }}</span>
+        </li>
+        {% endfor %}
+    </ol>
 
-        <a href="https://github.com/ClashJB/Babelangue" target="_blank" class="btn btn-dark btn-lg">
-            <i class="bi bi-github"></i> View on GitHub
-        </a>
-    </main>
-
-    <!-- Footer -->
-    <footer class="text-center mt-5 py-4 border-top">
-        <p class="mb-0 small text-muted">&copy; 2025 BABELANGUE. All rights reserved.</p>
-    </footer>
 </body>
 
 </html>
