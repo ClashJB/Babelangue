@@ -1,1 +1,2 @@
- 
+- Deck progress in percentage
+- Deck overview page

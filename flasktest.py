@@ -148,5 +148,11 @@ def trainer():
         "trainer.html", 
         info=info
         )
+
+@app.route("/deck/<path:deck>")
+def deck_overview(deck):
+    return(render_template("deck.html"))
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
