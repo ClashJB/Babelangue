@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
+import glob
 
 
 def expand_languages(d=dict, values=list):
@@ -127,6 +128,25 @@ def get_definitions_route():
     except Exception as e:
         return jsonify({'error': f'Could not fetch definitions: {str(e)}'}), 500
 
+@app.route("/trainer")
+def trainer():
+    deck_files = glob.glob("*.csv")
+    info = []
 
+    for f in deck_files:
+        deck = Deck(f)
+        name = deck.csv_file
+        langs = deck.langs
+        deck_lang_words = expand_languages(target_langues, langs)
+        langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
+        n_due = deck.n_due
+        n_cards = deck.n_cards
+        
+        info.append((name, langs, n_due, n_cards, langs_text))
+        
+    return render_template(
+        "trainer.html", 
+        info=info
+        )
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
