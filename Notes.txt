@@ -1,2 +1,2 @@
-- Deck progress in percentage
-- Deck overview page
+- Add deck mode
+- Card overview and edit in deck view

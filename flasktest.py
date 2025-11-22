@@ -155,7 +155,9 @@ def deck_overview(deck):
     deck = Deck(deck)
     name = os.path.splitext(os.path.basename(deck.csv_file))[0]
     langs = deck.langs
+    cards = deck.cards
     deck_lang_words = expand_languages(target_langues, langs)
+    langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
     n_due = deck.n_due
     n_cards = deck.n_cards
     progress = []
@@ -167,16 +169,15 @@ def deck_overview(deck):
         except ZeroDivisionError:
             progress.append(0)
 
-    print(progress)
-
     return render_template(
         "deck.html",
         name=name,
-        deck_lang_words=deck_lang_words,
+        langs_text=langs_text,
         n_due=n_due,
         n_cards=n_cards,
         progress=progress,
-        n_box=n_box
+        n_box=n_box,
+        cards=cards
         )
 
 

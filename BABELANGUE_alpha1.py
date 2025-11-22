@@ -52,9 +52,17 @@ def startup():
 class Flashcard:
     def __init__(self, row):
         self.row = row
+        self.card_row = self.get_card_row()
         self.box = self.get_box()
         self.next_review = self.get_next_review()
         self.last_review = self.get_last_review()
+
+    def get_card_row(self):
+        pure_row = {}
+        for (a, b) in self.row.items():
+            if a in target_langues.values():
+                pure_row[a] = b
+        return pure_row
 
     def get_box(self):
         try:
