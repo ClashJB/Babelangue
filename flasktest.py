@@ -150,7 +150,7 @@ def trainer():
         info=info
         )
 
-@app.route("/deck/<path:deck>")
+@app.route("/deck/<path:deck>", methods = ["GET", "POST"])
 def deck_overview(deck):
     deck = Deck(deck)
     name = os.path.splitext(os.path.basename(deck.csv_file))[0]
@@ -168,6 +168,26 @@ def deck_overview(deck):
             progress.append(round((n / n_cards) * 100))
         except ZeroDivisionError:
             progress.append(0)
+    
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        if action == "save":
+            clean_row = {}
+
+            for lang in langs:
+                clean_row[lang] = request.form.get(f"edited_{lang}")
+
+            deck.cards.append(Flashcard(row=clean_row))
+            deck.save()
+            saved = True
+
+            return render_template(
+                "translator.html",
+                langs=langs,
+                langs_text=langs_text,
+                saved=True
+            )
 
     return render_template(
         "deck.html",
@@ -175,11 +195,38 @@ def deck_overview(deck):
         langs_text=langs_text,
         n_due=n_due,
         n_cards=n_cards,
-        progress=progress,
         n_box=n_box,
-        cards=cards
-        )
+        progress=progress,
+        cards=cards,
+        deck_path=deck.csv_file,
+    )
 
+@app.route("/card/<path:deck>/<card>")
+def card_view(deck, card):
+    deck = Deck(deck)
+    name = os.path.splitext(os.path.basename(deck.csv_file))[0]
+    langs = deck.langs
+
+    try:
+        index = int(card)
+    except (TypeError, ValueError):
+        return "Invalid card index"
+
+    if index < 0 or index >= len(deck.cards):
+        return "Card not found 404"
+
+    card = deck.cards[index]
+
+    row = card.card_row
+
+    return render_template(
+        "card.html",
+        card=card,
+        name=name,
+        langs=langs,
+        index=index,
+        deck_path=deck.csv_file
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
