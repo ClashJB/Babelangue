@@ -150,7 +150,7 @@ def trainer():
         info=info
         )
 
-@app.route("/deck/<path:deck>", methods = ["GET", "POST"])
+@app.route("/deck/<path:deck>")
 def deck_overview(deck):
     deck = Deck(deck)
     name = os.path.splitext(os.path.basename(deck.csv_file))[0]
@@ -168,26 +168,6 @@ def deck_overview(deck):
             progress.append(round((n / n_cards) * 100))
         except ZeroDivisionError:
             progress.append(0)
-    
-    if request.method == "POST":
-        action = request.form.get("action")
-
-        if action == "save":
-            clean_row = {}
-
-            for lang in langs:
-                clean_row[lang] = request.form.get(f"edited_{lang}")
-
-            deck.cards.append(Flashcard(row=clean_row))
-            deck.save()
-            saved = True
-
-            return render_template(
-                "translator.html",
-                langs=langs,
-                langs_text=langs_text,
-                saved=True
-            )
 
     return render_template(
         "deck.html",
@@ -201,31 +181,43 @@ def deck_overview(deck):
         deck_path=deck.csv_file,
     )
 
-@app.route("/card/<path:deck>/<card>")
+@app.route("/card/<path:deck>/<card>", methods=["GET", "POST"])
 def card_view(deck, card):
-    deck = Deck(deck)
-    name = os.path.splitext(os.path.basename(deck.csv_file))[0]
-    langs = deck.langs
+    deck_inst = Deck(deck)
+    name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
+    langs = deck_inst.langs
 
     try:
         index = int(card)
     except (TypeError, ValueError):
         return "Invalid card index"
 
-    if index < 0 or index >= len(deck.cards):
+    if index < 0 or index >= len(deck_inst.cards):
         return "Card not found 404"
 
-    card = deck.cards[index]
-
+    card = deck_inst.cards[index]
     row = card.card_row
+
+
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        if action == "save":
+            for lang in langs:
+                deck_inst.cards[index].row[lang] = request.form.get(f"edited_{lang}")
+
+            deck_inst.save()
+            saved = True
+            deck_inst = Deck(deck)
+
 
     return render_template(
         "card.html",
-        card=card,
+        card=deck_inst.cards[index],
         name=name,
         langs=langs,
         index=index,
-        deck_path=deck.csv_file
+        deck_path=deck_inst.csv_file
     )
 
 if __name__ == "__main__":
