@@ -1,2 +1,0 @@
-- Add deck mode
-- Card overview and edit in deck view
