@@ -146,7 +146,7 @@ def trainer():
         info.append((name, langs, n_due, n_cards, langs_text, deck_path))
         
     return render_template(
-        "trainer.html", 
+        "decklist.html", 
         info=info
         )
 
@@ -219,6 +219,35 @@ def card_view(deck, card):
         index=index,
         deck_path=deck_inst.csv_file
     )
+
+@app.route("/train/<path:deck>/<card>")
+def train(deck, card):
+    deck_inst = Deck(deck)
+    name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
+
+    try:
+        index = int(card)
+    except (TypeError, ValueError):
+        return "Invalid card index"
+
+    if index < 0 or index >= len(deck_inst.cards):
+        return "Card not found 404"
+    
+    card_inst = deck_inst.cards[index]
+    row = card_inst.card_row
+
+    for lang, tr in row.items():
+        print(lang)
+        print(tr)
+
+    return render_template(
+        "trainer.html",
+        deck_inst=deck_inst,
+        name=name,
+        card_inst=card_inst,
+        row=row,
+    )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
