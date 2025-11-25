@@ -40,7 +40,7 @@
         <h1 class="mb-4">Train Deck</h1>
 
 
-        <div id="carouselExample" class="carousel slide carousel-dark">
+        <div id="carouselExample" class="carousel slide carousel-dark mb-3">
             <div class="carousel-indicators">
                 {% for _ in row %}
                 <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}"
@@ -60,6 +60,7 @@
                     </div>
                 </div>
                 {% endfor %}
+
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -70,7 +71,14 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
-
+        <form method="POST">
+            <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-between" style="max-width: 600px; min-width: 600px;">
+                    <button type="submit" name="action" value="dont_know" class="btn-danger">Don't know</button>
+                    <button type="submit" name="action" value="know_it" class="btn-success">Know it</button>
+                </div>
+            </div>
+        </form>
     </div>
 
 </body>
