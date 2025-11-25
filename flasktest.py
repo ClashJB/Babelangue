@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, jsonify
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
 import glob
+from datetime import datetime
 
 
 def expand_languages(d=dict, values=list):
@@ -210,7 +211,7 @@ def card_view(deck, card):
             saved = True
             deck_inst = Deck(deck)
 
-
+    
     return render_template(
         "card.html",
         card=deck_inst.cards[index],
@@ -220,25 +221,37 @@ def card_view(deck, card):
         deck_path=deck_inst.csv_file
     )
 
-@app.route("/train/<path:deck>/<card>")
-def train(deck, card):
+@app.route("/train/<path:deck>", methods=["GET", "POST"])
+def train(deck):
     deck_inst = Deck(deck)
     name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
+    deck_inst.n_due
 
-    try:
-        index = int(card)
-    except (TypeError, ValueError):
-        return "Invalid card index"
+    for card_inst in deck_inst.cards:
+            if datetime.today() >= card_inst.next_review:
+                row = card_inst.card_row
 
-    if index < 0 or index >= len(deck_inst.cards):
-        return "Card not found 404"
+                if request.method == "POST":
+                    action = request.form.get("action")
+
+                    if action == "dont_know":
+                        card_inst.box = 1
+                        card_inst.save_row()
+
+                    if action == "know_it":
+                        card_inst.box += 1
+                        card_inst.save_row()
+
+                return render_template(
+                    "trainer.html",
+                    deck_inst=deck_inst,
+                    name=name,
+                    card_inst=card_inst,
+                    row=row
+                    )
+
     
-    card_inst = deck_inst.cards[index]
-    row = card_inst.card_row
 
-    for lang, tr in row.items():
-        print(lang)
-        print(tr)
 
     return render_template(
         "trainer.html",
