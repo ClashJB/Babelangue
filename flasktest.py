@@ -253,6 +253,7 @@ def train(deck):
 
         interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card_inst.box, 30)
         card_inst.next_review = datetime.today() + timedelta(days=interval_days)
+        card_inst.save_row()
         deck_inst.save()
 
 
