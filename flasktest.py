@@ -1,8 +1,8 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
 import glob
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def expand_languages(d=dict, values=list):
@@ -225,40 +225,46 @@ def card_view(deck, card):
 def train(deck):
     deck_inst = Deck(deck)
     name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
-    deck_inst.n_due
 
+    due_card = None
     for card_inst in deck_inst.cards:
-            if datetime.today() >= card_inst.next_review:
-                row = card_inst.card_row
-
-                if request.method == "POST":
-                    action = request.form.get("action")
-
-                    if action == "dont_know":
-                        card_inst.box = 1
-                        card_inst.save_row()
-
-                    if action == "know_it":
-                        card_inst.box += 1
-                        card_inst.save_row()
-
-                return render_template(
-                    "trainer.html",
-                    deck_inst=deck_inst,
-                    name=name,
-                    card_inst=card_inst,
-                    row=row
-                    )
-
+        if datetime.today() >= card_inst.next_review:
+            due_card = card_inst
+            break
     
+    if not due_card:
+        return render_template(
+            "trainer.html",
+            deck_inst=deck_inst,
+            name=name,
+            card_inst=None,
+            row=None
+        )
+
+    row = due_card.card_row
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "know_it":
+            card_inst.box += 1
+
+        elif action == "dont_know":
+            card_inst.box = 1
+
+        interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card_inst.box, 30)
+        card_inst.next_review = datetime.today() + timedelta(days=interval_days)
+        deck_inst.save()
 
 
+        return redirect(url_for("train", deck=deck))
+
+        
     return render_template(
         "trainer.html",
         deck_inst=deck_inst,
         name=name,
         card_inst=card_inst,
-        row=row,
+        row=row
     )
 
 

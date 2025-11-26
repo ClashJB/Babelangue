@@ -6,8 +6,12 @@ import glob
 import pandas
 import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
 
-auth_key = "7053ad0d-f006-4202-aeb4-b96400b68c58:fx"
+load_dotenv("deepl_api_key.env")
+
+auth_key = os.getenv("DEEPL_API_KEY")
 if not auth_key:
     raise ValueError("Missing DeepL API key. Please set DEEPL_API_KEY in your environment.")
 deepl_client = deepl.DeepLClient(auth_key)
