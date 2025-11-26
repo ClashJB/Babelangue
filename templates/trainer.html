@@ -35,11 +35,11 @@
     </nav>
 
     <div class="container mt-4">
-        <a href="/trainer" class="btn btn-outline-secondary mb-3" style="font-size: smaller;">&lt; Go Back</a>
+        <a href="#" class="btn btn-secondary mb-4">Back</a>
 
         <h1 class="mb-4">Train Deck</h1>
 
-
+        {% if row %}
         <div id="carouselExample" class="carousel slide carousel-dark mb-3">
             <div class="carousel-indicators">
                 {% for _ in row %}
@@ -71,14 +71,17 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
-        <form method="POST">
-            <div class="d-flex justify-content-center">
-                <div class="d-flex justify-content-between" style="max-width: 600px; min-width: 600px;">
-                    <button type="submit" name="action" value="dont_know" class="btn btn-danger">Don't know</button>
-                    <button type="submit" name="action" value="know_it" class="btn btn-success">Know it</button>
+        <div class="container" style="max-width: 600px;">
+            <form method="POST">
+                <div class="d-flex flex-column justify-content-center">
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" name="action" value="dont_know" class="btn btn-danger">Don't know</button>
+                        <button type="submit" name="action" value="know_it" class="btn btn-success">Know it</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+        {% endif %}
     </div>
 
 </body>
