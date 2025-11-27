@@ -58,8 +58,13 @@
     </nav>
 
     <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ name }}</li>
+            </ol>
+        </nav>
 
-        <a href="/trainer" type="button" class="btn btn-secondary mb-4">Back</a>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-0">{{ name }}</h1>
 
