@@ -131,7 +131,7 @@ def get_definitions_route():
 
 @app.route("/trainer")
 def trainer():
-    deck_files = os.listdir("data")
+    deck_files = [d for d in os.listdir("data") if d.endswith(".csv")]
     info = []
 
     for f in deck_files:
@@ -298,6 +298,52 @@ def train(deck):
         card_inst=card_inst,
         row=row,
         s_langs=s_langs
+    )
+
+
+@app.route("/add", methods=["GET", "POST"])
+def add():
+    langs = [x.capitalize() for x in target_langues.keys()]
+
+    s_langs = []
+    s_langs_text = None
+    deck_name = None
+
+    if request.method == "POST":
+        action = request.form.get("action")
+    
+        deck_name = request.form.get("deck_name")
+        raw = request.form.getlist('selected_langs')
+        seen = set()
+        s_langs = [x for x in raw if x and x not in seen and not seen.add(x)]
+
+        if s_langs:
+            if len(s_langs) > 1:
+                s_langs_text = f"{', '.join(s_langs[:-1])} and {s_langs[-1]}"
+            else:
+                s_langs_text = s_langs[0]   
+
+        if action == "save":
+            d_langs = []
+            for lang in s_langs:
+                d_langs.append(target_langues[lang.lower()])
+
+            print(d_langs)
+            
+            filename = "data/" + deck_name.strip() + ".csv"
+            print(filename)
+
+            deck = Deck(filename, d_langs)
+            deck.save()
+            return redirect("/trainer")
+
+
+    return render_template(
+        "add.html",
+        s_langs=s_langs,
+        langs=langs,
+        s_langs_text=s_langs_text,
+        deck_name=deck_name
     )
 
 
