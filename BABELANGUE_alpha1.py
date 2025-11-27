@@ -175,9 +175,12 @@ class Deck:
                     writer.writerow(card.row)
             except AttributeError:
                 pass
-        if self.order:
-            with open(f"data/{self.name}_lang_order.json", "w", newline="", encoding="utf-8") as f:
-                json.dump(self.order, f)
+        try:
+            if self.order:
+                with open(f"data/{self.name}_lang_order.json", "w", newline="", encoding="utf-8") as f:
+                    json.dump(self.order, f)
+        except AttributeError:
+            pass
         
     def train(self, from_langs, to_langs):
         exit_mode = False

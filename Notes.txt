@@ -1,2 +1,3 @@
 - Randomize card order in train page
-- target and anser langs
+- Breadcrumb for page nav?
+- Add card
