@@ -37,6 +37,14 @@
 
     <!-- Main Content -->
     <main class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Create Deck</li>
+            </ol>
+        </nav>
+
+
         <form method="POST" id="mainForm">
             <input type="hidden" name="action" value="">
 
@@ -44,6 +52,10 @@
                 <h1 class="mb-0">Create Deck</h1>
                 <button class="btn btn-success" type="button" onclick="submitForm('save')">Save</button>
             </div>
+
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
 
             <div class="mb-4">
                 <div class="row align-items-center">
@@ -72,6 +84,8 @@
                     </div>
                 </div>
             </div>
+
+            <hr class="my-4">
 
             <div class="card shadow-sm mb-4">
                 <div class="card-header">

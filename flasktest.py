@@ -308,6 +308,7 @@ def add():
     s_langs = []
     s_langs_text = None
     deck_name = None
+    error = None
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -323,19 +324,31 @@ def add():
             else:
                 s_langs_text = s_langs[0]   
 
+        
         if action == "save":
-            d_langs = []
-            for lang in s_langs:
-                d_langs.append(target_langues[lang.lower()])
+            if not deck_name and not s_langs:
+                error = "Missing deck name and language selection"
+            elif not deck_name:
+                error = "Missing deck name"
+            elif not s_langs:
+                error = "Missing language selection"
+            elif len(s_langs) < 2:
+                error = "Minimum of 2 languages are required"
+            elif "." in deck_name:
+                error = "Please don't use periods in filename."
+            else:
+                d_langs = []
+                for lang in s_langs:
+                    d_langs.append(target_langues[lang.lower()])
 
-            print(d_langs)
-            
-            filename = "data/" + deck_name.strip() + ".csv"
-            print(filename)
+                print(d_langs)
+                
+                filename = "data/" + deck_name.strip() + ".csv"
+                print(filename)
 
-            deck = Deck(filename, d_langs)
-            deck.save()
-            return redirect("/trainer")
+                deck = Deck(filename, d_langs)
+                deck.save()
+                return redirect("/trainer")
 
 
     return render_template(
@@ -343,7 +356,8 @@ def add():
         s_langs=s_langs,
         langs=langs,
         s_langs_text=s_langs_text,
-        deck_name=deck_name
+        deck_name=deck_name,
+        error=error
     )
 
 

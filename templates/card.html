@@ -36,10 +36,16 @@
     </nav>
 
     <div class="container mt-4">
-        <a href="{{ url_for('deck_overview', deck=deck_path) }}">
-            <button type="button" class="btn-close mb-4" aria-label="Close"></button>
-        </a>
-        <h3 class="mb-3">{{ name }}/Card {{ index }}</h3>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('deck_overview', deck=deck_path) }}">{{ name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Card {{ index }}</li>
+            </ol>
+        </nav>
+
+        <h3 class="mb-3">Edit Card</h3>
 
         <button type="button" class="btn btn-success" id="saveBtn"
             onclick="document.getElementById('saveForm').submit();">Save as Card <small
