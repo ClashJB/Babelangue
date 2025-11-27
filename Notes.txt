@@ -1,4 +1,2 @@
-- Figure out how to start train (Doesn't always start at 0)
-- Fix know and dont know button positions for mobile
-- Add a progress bar to train page
 - Randomize card order in train page
+- target and anser langs

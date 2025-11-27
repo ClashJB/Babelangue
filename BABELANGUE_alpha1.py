@@ -8,6 +8,7 @@ import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv("deepl_api_key.env")
 
@@ -104,6 +105,7 @@ class Flashcard:
 class Deck:
     def __init__(self, csv_file, langs=None):
         self.csv_file = csv_file
+        self.name = os.path.splitext(os.path.basename(self.csv_file))[0]
         if langs:
             self.langs = langs
             self.fieldnames = ["next_review", "last_review", "box"] + self.langs
@@ -113,7 +115,14 @@ class Deck:
         self.cards = self.load_from_csv(csv_file)
         self.fieldnames = ["next_review", "last_review", "box"] + self.langs
         self.n_cards, self.n_due = self.learn_information()
+        self.order = self.get_order()
 
+    def get_order(self):
+        try:
+            with open(f"data/{self.name}_lang_order.json", encoding="utf-8", newline="") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return None
 
     def load_from_csv(self, csv_file):
         with open(csv_file, encoding="utf-8", newline="") as f:
@@ -127,8 +136,6 @@ class Deck:
                 if (card.box - 1) == n:
                     progress[n] += 1
         return progress
-
-
 
     def get_langs(self):
             with open(self.csv_file , mode="r", newline="") as file:
@@ -168,7 +175,10 @@ class Deck:
                     writer.writerow(card.row)
             except AttributeError:
                 pass
-    
+        if self.order:
+            with open(f"data/{self.name}_lang_order.json", "w", newline="", encoding="utf-8") as f:
+                json.dump(self.order, f)
+        
     def train(self, from_langs, to_langs):
         exit_mode = False
         for card in self.cards:
