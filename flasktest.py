@@ -225,6 +225,13 @@ def card_view(deck, card):
 def train(deck):
     deck_inst = Deck(deck)
     name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
+    deck_path=deck_inst.csv_file
+    n_due = deck_inst.n_due
+    due_percentage = int((deck_inst.n_cards - n_due) / deck_inst.n_cards * 100)
+    s_langs = deck_inst.order
+
+    if not s_langs:
+        s_langs = []
 
     due_card = None
     for card_inst in deck_inst.cards:
@@ -237,35 +244,60 @@ def train(deck):
             "trainer.html",
             deck_inst=deck_inst,
             name=name,
+            deck_path=deck_path,
+            due_percentage=due_percentage,
+            n_due=n_due,
             card_inst=None,
             row=None
         )
 
     row = due_card.card_row
+    card_inst = due_card
+
 
     if request.method == "POST":
         action = request.form.get("action")
-        if action == "know_it":
-            card_inst.box += 1
 
-        elif action == "dont_know":
-            card_inst.box = 1
+        if action == "save_langs":
+            raw = request.form.getlist('selected_langs')
+            seen = set()
+            s_langs = [x for x in raw if x and x not in seen and not seen.add(x)]
+            deck_inst.order = s_langs
 
-        interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card_inst.box, 30)
-        card_inst.next_review = datetime.today() + timedelta(days=interval_days)
-        card_inst.save_row()
+        else:
+            if action == "know_it":
+                card_inst.box += 1
+            elif action == "dont_know":
+                card_inst.box = 1
+
+            interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card_inst.box, 30)
+            card_inst.next_review = datetime.today() + timedelta(days=interval_days)
+            card_inst.save_row()
+            deck_inst.save()
+
+            return redirect(url_for("train", deck=deck))
+
+    if s_langs:
+        ordered = {}
+        for lang in s_langs:
+            if lang in row:
+                ordered[lang] = row[lang]
+        for lang, val in row.items():
+            if lang not in ordered:
+                ordered[lang] = val
         deck_inst.save()
+        row = ordered
 
-
-        return redirect(url_for("train", deck=deck))
-
-        
     return render_template(
         "trainer.html",
         deck_inst=deck_inst,
         name=name,
+        deck_path=deck_path,
+        due_percentage=due_percentage,
+        n_due=n_due,
         card_inst=card_inst,
-        row=row
+        row=row,
+        s_langs=s_langs
     )
 
 
