@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
 import glob
 from datetime import datetime, timedelta
+import random
 
 
 def expand_languages(d=dict, values=list):
@@ -133,6 +134,7 @@ def get_definitions_route():
 def trainer():
     deck_files = [d for d in os.listdir("data") if d.endswith(".csv")]
     info = []
+    deleted_flag = request.args.get("deleted")
 
     for f in deck_files:
         deck_path = os.path.join("data", f)
@@ -148,10 +150,11 @@ def trainer():
         
     return render_template(
         "decklist.html", 
-        info=info
+        info=info,
+        deleted=deleted_flag
         )
 
-@app.route("/deck/<path:deck>")
+@app.route("/deck/<path:deck>", methods=["GET","POST"])
 def deck_overview(deck):
     deck = Deck(deck)
     name = os.path.splitext(os.path.basename(deck.csv_file))[0]
@@ -170,6 +173,16 @@ def deck_overview(deck):
         except ZeroDivisionError:
             progress.append(0)
 
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action =="delete":
+            os.replace(deck.csv_file, f"deleted/{ name }.csv")
+            try:
+                os.replace(f"data/{name}_lang_order.json", f"deleted/{name}_lang_order.json")
+            except FileNotFoundError:
+                pass
+            return redirect(url_for("trainer", deleted=True))
+
     return render_template(
         "deck.html",
         name=name,
@@ -187,6 +200,7 @@ def card_view(deck, card):
     deck_inst = Deck(deck)
     name = os.path.splitext(os.path.basename(deck_inst.csv_file))[0]
     langs = deck_inst.langs
+    saved = ""
 
     try:
         index = int(card)
@@ -208,7 +222,7 @@ def card_view(deck, card):
                 deck_inst.cards[index].row[lang] = request.form.get(f"edited_{lang}")
 
             deck_inst.save()
-            saved = True
+            saved = "Card saved successfully"
             deck_inst = Deck(deck)
 
     
@@ -218,7 +232,8 @@ def card_view(deck, card):
         name=name,
         langs=langs,
         index=index,
-        deck_path=deck_inst.csv_file
+        deck_path=deck_inst.csv_file,
+        saved=saved
     )
 
 @app.route("/train/<path:deck>", methods=["GET", "POST"])
@@ -232,6 +247,8 @@ def train(deck):
 
     if not s_langs:
         s_langs = []
+
+
 
     due_card = None
     for card_inst in deck_inst.cards:
@@ -359,6 +376,10 @@ def add():
         deck_name=deck_name,
         error=error
     )
+
+@app.route("/import", methods=["GET", "POST"])
+def import_deck():
+    return render_template("import.html")
 
 
 if __name__ == "__main__":

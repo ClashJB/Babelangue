@@ -1,3 +1,6 @@
+- Import csv mode
+- Different learning algorithm
+- Delete deck button
+
+Scrapped:
 - Randomize card order in train page
-- Breadcrumb for page nav?
-- Add card
