@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BABELANGUE | Decklist</title>
+    <title>BABELANGUE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
@@ -17,6 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Babelangue" />
     <link rel="manifest" href="/static/site.webmanifest" />
+
 </head>
 
 <body class="bg-light text-dark">
@@ -35,40 +36,20 @@
     </nav>
 
     <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="mb-0">Your decks:</h1>
-            <div>
-                <a href="/import" class="btn btn-warning" type="button" style="font-size: large;">
-                    Import Deck
-                </a>
-                <a href="/add" class="btn btn-success" type="button" style="font-size: large;">
-                    Add Deck
-                </a>
-            </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Import Deck</li>
+            </ol>
+        </nav>
+
+        <h1 class="mb-4">Import your deck</h1>
+
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" id="inputGroupFile02">
+            <label class="input-group-text" for="inputGroupFile02">Upload</label>
         </div>
-
-        {% if deleted %}
-        <div class="alert alert-success">Deck deleted successfully.</div>
-        {% endif %}
-
-
-        <div class="list-group list-group-numbered">
-            {% for (name, langs, n_due, n_cards, langs_text, deck_path) in info %}
-            <a href="{{ url_for('deck_overview', deck=deck_path) }}"
-                class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
-                <div class="ms-2 me-auto">
-                    <div class="fw-bold">{{ name }}</div>
-                    {{ langs_text }}
-                </div>
-                {% if n_due %}
-                <span class="badge text-bg-primary rounded-pill">{{ n_due }}</span>
-                {% endif %}
-            </a>
-            {% endfor %}
-        </div>
-
 
     </div>
-</body>
 
-</html>
+</body>

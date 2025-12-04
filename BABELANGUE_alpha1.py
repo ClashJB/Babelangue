@@ -35,7 +35,7 @@ target_langues = {
     "italian": "IT",
     "lithuanian": "LT",
     "latvian": "LV",
-    "norwegian Bokmål": "NB",
+    "norwegian bokmål": "NB",
     "dutch": "NL",
     "polish": "PL",
     "brazilian portuguese": "PT-BR",

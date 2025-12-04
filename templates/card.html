@@ -47,6 +47,10 @@
 
         <h3 class="mb-3">Edit Card</h3>
 
+        {% if saved %}
+        <div class="alert alert-success">{{ saved }}</div>
+        {% endif %}
+
         <button type="button" class="btn btn-success" id="saveBtn"
             onclick="document.getElementById('saveForm').submit();">Save as Card <small
                 class="opacity-75">(Ctrl+Enter)</small></button>
