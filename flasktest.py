@@ -1,9 +1,11 @@
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
+from werkzeug.utils import secure_filename
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
 import glob
 from datetime import datetime, timedelta
 import random
+
 
 
 def expand_languages(d=dict, values=list):
@@ -42,7 +44,6 @@ def lang_code_to_dict_api(lang_code):
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -52,12 +53,24 @@ def index():
 def translator():
     deck_files = [f for f in os.listdir("data") if f.endswith(".csv")]
 
-    selected_deck = None
+    selected_deck = request.args.get("deck") or request.form.get("deck")
+    
     deck_langs = None
     translations = None
     source_lang = None
     text = None
     saved = False
+    deck_langs_text = None
+
+    if selected_deck:
+        deck_path = selected_deck if selected_deck.startswith("data/") else os.path.join("data", selected_deck)
+        try:
+            deck = Deck(deck_path)
+            deck_langs = deck.langs
+            deck_lang_words = expand_languages(target_langues, deck_langs)
+            deck_langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
+        except FileNotFoundError:
+            selected_deck = None
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -109,8 +122,13 @@ def translator():
             saved=saved
         )
 
-    return render_template("translator.html", decks=deck_files)
-
+    return render_template(
+        "translator.html", 
+        decks=deck_files,
+        selected_deck=selected_deck,
+        deck_langs=deck_langs,
+        deck_langs_text=deck_langs_text
+    )
 
 @app.route("/get_definitions", methods=["POST"])
 def get_definitions_route():
@@ -380,6 +398,40 @@ def add():
 @app.route("/import", methods=["GET", "POST"])
 def import_deck():
     return render_template("import.html")
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return "No file part", 400
+
+    file = request.files['file']
+
+    if file.filename == "":
+        return "No file", 400
+    
+    filename = secure_filename(file.filename)
+    upload_path = os.path.join("/home/julian-biehl/Babelangue-1/data/uploads", filename)
+    file.save(upload_path)
+
+    deck = Deck(upload_path)  
+
+    if not deck.langs:
+        return render_template(
+            "import.html",
+            no_langs = True
+            )
+    
+    print(deck.csv_file)
+
+    os.replace(deck.csv_file, f"data/{ deck.name }.csv")
+    deck.csv_file = f"data/{ deck.name }.csv"
+
+    print(deck.csv_file)
+
+    return redirect(url_for("deck_overview", deck=deck.csv_file))
+
+
+    
 
 
 if __name__ == "__main__":

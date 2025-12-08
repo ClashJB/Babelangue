@@ -1,6 +1,5 @@
-- Import csv mode
 - Different learning algorithm
-- Delete deck button
+- Add lang to a deck (Translate every existing card)
 
 Scrapped:
 - Randomize card order in train page
