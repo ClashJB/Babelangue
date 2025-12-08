@@ -130,8 +130,11 @@
         </div>
 
         {% if not cards %}
-        <div class="alert alert-info">
-            No cards in this deck yet. <a href="/translator">Add some cards</a> using the Translator!
+        <div class="alert alert-info mt-4">
+            No cards in this deck yet. <a href="{{ url_for('translator', deck=name + '.csv') }}">Add some cards</a>
+            using
+            the
+            Translator!
         </div>
         {% endif %}
 
