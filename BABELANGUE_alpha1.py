@@ -108,12 +108,10 @@ class Deck:
         self.name = os.path.splitext(os.path.basename(self.csv_file))[0]
         if langs:
             self.langs = langs
-            self.fieldnames = ["next_review", "last_review", "box"] + self.langs
             self.save()
         else:
             self.langs = self.get_langs()
         self.cards = self.load_from_csv(csv_file)
-        self.fieldnames = ["next_review", "last_review", "box"] + self.langs
         self.n_cards, self.n_due = self.learn_information()
         self.order = self.get_order()
 
@@ -168,7 +166,7 @@ class Deck:
     
     def save(self):
         with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
-            writer = csv.DictWriter(deck, self.fieldnames)
+            writer = csv.DictWriter(deck, (["next_review", "last_review", "box"] + self.langs))
             writer.writeheader()
             try:
                 for card in self.cards:
@@ -181,7 +179,10 @@ class Deck:
                     json.dump(self.order, f)
         except AttributeError:
             pass
-        
+    
+    def ergaenzen(self):
+        ...
+
     def train(self, from_langs, to_langs):
         exit_mode = False
         for card in self.cards:

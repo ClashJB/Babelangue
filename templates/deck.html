@@ -69,6 +69,8 @@
             <h1 class="mb-0">{{ name }}</h1>
             <div>
                 <form method="post">
+                    <button class="btn btn-secondary" style="font-size: large;" type="submit" name="action"
+                        value="edit">✎ Edit</button>
                     <button class="btn btn-danger" style="font-size: large;" type="submit" name="action"
                         value="delete">🗑 Delete</button>
                     <a href="{{ url_for('train', deck=deck_path) }}" class="btn btn-success" type="button"

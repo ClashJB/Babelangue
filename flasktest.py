@@ -184,7 +184,6 @@ def deck_overview(deck):
     n_cards = deck.n_cards
     progress = []
     n_box = deck.get_progress()
-    print(n_box)
     for n in n_box:
         try:
             progress.append(round((n / n_cards) * 100))
@@ -200,6 +199,9 @@ def deck_overview(deck):
             except FileNotFoundError:
                 pass
             return redirect(url_for("trainer", deleted=True))
+        
+        if action == "edit":
+            return redirect(url_for("deck_edit", deck=deck.csv_file))
 
     return render_template(
         "deck.html",
@@ -369,17 +371,14 @@ def add():
                 error = "Missing language selection"
             elif len(s_langs) < 2:
                 error = "Minimum of 2 languages are required"
-            elif "." in deck_name:
-                error = "Please don't use periods in filename."
             else:
                 d_langs = []
                 for lang in s_langs:
                     d_langs.append(target_langues[lang.lower()])
 
-                print(d_langs)
                 
-                filename = "data/" + deck_name.strip() + ".csv"
-                print(filename)
+                filename = "data/" + secure_filename(deck_name) + ".csv"
+
 
                 deck = Deck(filename, d_langs)
                 deck.save()
@@ -421,15 +420,73 @@ def upload_file():
             no_langs = True
             )
     
-    print(deck.csv_file)
 
     os.replace(deck.csv_file, f"data/{ deck.name }.csv")
     deck.csv_file = f"data/{ deck.name }.csv"
 
-    print(deck.csv_file)
-
     return redirect(url_for("deck_overview", deck=deck.csv_file))
 
+@app.route("/deckedit/<path:deck>", methods=["GET","POST"])
+def deck_edit(deck):
+    deck_inst = Deck(deck)
+
+    langs = [x.capitalize() for x in target_langues.keys()]
+
+    s_langs = []
+    for lang_word in expand_languages(target_langues, deck_inst.langs):
+        s_langs.append(lang_word)
+    s_langs_text = None
+    deck_name = deck_inst.name
+    error = None
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        deck_name = request.form.get("deck_name")
+        raw = request.form.getlist('selected_langs')
+        seen = set()
+        s_langs = [x for x in raw if x and x not in seen and not seen.add(x)]
+        
+        if action == "save":
+            if not deck_name and not s_langs:
+                error = "Missing deck name and language selection"
+            elif not deck_name:
+                error = "Missing deck name"
+            elif not s_langs:
+                error = "Missing language selection"
+            elif len(s_langs) < 2:
+                error = "Minimum of 2 languages are required"
+            
+            else:
+                d_langs = []
+                for lang in s_langs:
+                    d_langs.append(target_langues[lang.lower()])
+                
+                
+
+                os.replace(deck_inst.csv_file, f"data/{secure_filename(deck_name)}.csv")
+                deck_inst.csv_file = f"data/{secure_filename(deck_name)}.csv"
+
+                deck_inst.langs = d_langs
+                deck_inst.save()
+                return redirect("/trainer")
+
+    if s_langs:
+        if len(s_langs) > 1:
+            s_langs_text = f"{', '.join(s_langs[:-1])} and {s_langs[-1]}"
+        else:
+            s_langs_text = s_langs[0]   
+
+
+    return render_template(
+        "deckedit.html",
+        name = deck_inst.name,
+        deck_path = deck_inst.csv_file,
+        s_langs=s_langs,
+        langs=langs,
+        s_langs_text=s_langs_text,
+        deck_name=deck_name,
+        error=error
+        )
 
     
 
