@@ -101,11 +101,15 @@
                             {% for lang in langs %}
                             <div class="form-check">
                                 <input name="selected_langs" class="form-check-input" type="checkbox"
-                                    id="check{{ loop.index }}" value="{{ lang }}" {% if lang in s_langs %}checked{%
+                                    id="check{{ loop.index }}" value="{{ lang }}" {% if lang in s_langs %} checked {% if lang in o_langs %} disabled {% endif %} {%
                                     endif %} onchange="submitForm('save_langs')">
                                 <label class="form-check-label" for="check{{ loop.index }}">
                                     {{ lang }}
                                 </label>
+
+                                {% if lang in o_langs %}
+                                <input type="hidden" name="selected_langs" value="{{ lang }}">
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -120,6 +124,12 @@
             document.querySelector('input[name="action"]').value = action;
             document.getElementById('mainForm').submit();
         }
+    </script>
+
+    <script>
+        document.getElementById("opt").addEventListener("click", function(e) {
+            e.preventDefault();
+        });
     </script>
 
 </body>

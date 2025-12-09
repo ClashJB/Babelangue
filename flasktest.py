@@ -482,6 +482,7 @@ def deck_edit(deck):
         name = deck_inst.name,
         deck_path = deck_inst.csv_file,
         s_langs=s_langs,
+        o_langs=expand_languages(target_langues, deck_inst.langs),
         langs=langs,
         s_langs_text=s_langs_text,
         deck_name=deck_name,
