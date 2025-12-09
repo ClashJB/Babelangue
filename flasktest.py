@@ -192,6 +192,8 @@ def deck_overview(deck):
 
     if request.method == "POST":
         action = request.form.get("action")
+        card = int(request.form.get("delete_card"))
+
         if action =="delete":
             os.replace(deck.csv_file, f"deleted/{ name }.csv")
             try:
@@ -202,6 +204,11 @@ def deck_overview(deck):
         
         if action == "edit":
             return redirect(url_for("deck_edit", deck=deck.csv_file))
+        
+        if card:
+            print(card)
+            deck.cards.pop(card - 1)
+            deck.save()
 
     return render_template(
         "deck.html",

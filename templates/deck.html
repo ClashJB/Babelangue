@@ -116,14 +116,16 @@
                         - 1 }}">
                         <span class="badge" style="font-size: large;">{{ loop.index
                             }}.</span>
-                        <div>
-                            <form method="post">
-                                <button class="btn btn-danger" type="submit" name="action" value="delete_card"
+
+                        <form method="post">
+                            <div>
+                                <button class="btn btn-danger" type="submit" name="delete_card" value="{{ loop.index }}"
                                     style="color: rgb(255, 0, 238); font-weight: bolder;">DEL</button>
-                            </form>
-                            <a href="{{ url_for('card_view', deck=deck_path, card=loop.index0) }}"
-                                class="btn btn-secondary">Edit</a>
-                        </div>
+                                <a href="{{ url_for('card_view', deck=deck_path, card=loop.index0) }}"
+                                    class="btn btn-secondary">Edit</a>
+                            </div>
+                        </form>
+
 
                     </div>
                     <ul class="list-group list-group-flush">
