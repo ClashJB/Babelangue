@@ -1,6 +1,6 @@
-- Different learning algorithm
 - Add lang to a deck (Translate every existing card)
-- Delete option for card in deck
+- Add context to deepl
 
 Scrapped:
 - Randomize card order in train page
+- Different learning algorithm

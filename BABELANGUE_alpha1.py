@@ -181,7 +181,26 @@ class Deck:
             pass
     
     def ergaenzen(self):
-        ...
+        for card in self.cards:
+            e_card_lang = str
+            e_card_text = str
+
+            for lang in self.langs:
+                try:
+                    if card.row[lang]:
+                        e_card_lang = lang
+                        e_card_text = card.row[lang]
+                        pass
+                except KeyError:
+                    continue
+            for lang in self.langs:
+                if not card.row[lang]:
+                    card.row[lang] = deepl_client.translate_text(
+                        text= e_card_text, 
+                        source_lang= e_card_lang, 
+                        target_lang= lang, 
+                        context= f"Those are different translations that help determine the context: {card.card_row}"
+                        )
 
     def train(self, from_langs, to_langs):
         exit_mode = False
@@ -340,10 +359,10 @@ def print_decklist(decks_info): #Could be put into Deck, but unnecessary
     for i, (file, n_row, langs) in enumerate(decks_info, 1):
         print(f"[{i}] {file}  ({n_row} cards) | {", ".join(langs[:-1])} and {langs[-1]}")
 
-def translate(input, langs):
+def translate(input, langs, context=""):
     row = {}
     for lang in langs:
-        result = deepl_client.translate_text(input, target_lang= lang)
+        result = deepl_client.translate_text(input, target_lang= lang, context=context)
         row[lang] = result
         source_lang = fix_langs(result.detected_source_lang)
     if not source_lang in langs:
