@@ -186,21 +186,19 @@ class Deck:
             e_card_text = str
 
             for lang in self.langs:
-                try:
-                    if card.row[lang]:
-                        e_card_lang = lang
-                        e_card_text = card.row[lang]
-                        pass
-                except KeyError:
-                    continue
+                if card.row[lang]:
+                    e_card_lang = lang
+                    e_card_text = card.row[lang]
+                    pass
             for lang in self.langs:
                 if not card.row[lang]:
                     card.row[lang] = deepl_client.translate_text(
                         text= e_card_text, 
                         source_lang= e_card_lang, 
-                        target_lang= lang, 
-                        context= f"Those are different translations that help determine the context: {card.card_row}"
+                        target_lang= lang
                         )
+
+                    
 
     def train(self, from_langs, to_langs):
         exit_mode = False

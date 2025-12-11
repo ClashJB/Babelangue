@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file
 from werkzeug.utils import secure_filename
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
 import glob
@@ -207,6 +207,12 @@ def deck_overview(deck):
         
         if action == "edit":
             return redirect(url_for("deck_edit", deck=deck.csv_file))
+        
+        if action == "export":
+            return send_file(deck.csv_file,
+                             mimetype="text/csv",
+                             as_attachment=True,
+                             download_name=f"{name}.csv")
         
         if card:
             print(card)
@@ -478,10 +484,14 @@ def deck_edit(deck):
 
                 deck_inst.langs = d_langs
 
-                if action == "langadd":
-                    deck_inst.ergaenzen()
-
                 deck_inst.save()
+
+                if action == "langadd":
+                    deck_inst = Deck(deck)
+                    deck_inst.ergaenzen()
+                    deck_inst.save()
+
+                
                 return redirect("/trainer")
 
     if s_langs:

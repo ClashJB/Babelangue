@@ -17,6 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Babelangue" />
     <link rel="manifest" href="/static/site.webmanifest" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <style>
         .bg-step-0 {
@@ -69,13 +70,15 @@
             <h1 class="mb-0">{{ name }}</h1>
             <div>
                 <form method="post">
+                    <button class="btn btn-warning" style="font-size: large;" type="submit" name="action"
+                        value="export"><i class="bi bi-file-earmark-arrow-down"></i> Export</button>
                     <button class="btn btn-secondary" style="font-size: large;" type="submit" name="action"
-                        value="edit">✎ Edit</button>
+                        value="edit"><i class="bi bi-pencil-square"></i> Edit</button>
                     <button class="btn btn-danger" style="font-size: large;" type="submit" name="action"
-                        value="delete">🗑 Delete</button>
+                        value="delete"><i class="bi bi-trash-fill"></i> Delete</button>
                     <a href="{{ url_for('train', deck=deck_path) }}" class="btn btn-success" type="button"
                         style="font-size: large;">
-                        ▶︎ Train
+                        <i class="bi bi-play-fill"></i> Train
                     </a>
                 </form>
             </div>
@@ -119,10 +122,12 @@
 
                         <form method="post">
                             <div>
-                                <button class="btn btn-danger" type="submit" name="delete_card" value="{{ loop.index }}"
-                                    style="color: rgb(255, 0, 238); font-weight: bolder;">DEL</button>
+                                <button class="btn btn-outline-secondary" type="submit" name="delete_card"
+                                    value="{{ loop.index }}"
+                                    style="color: rgb(255, 0, 0); font-weight: bolder; background-color: rgb(220, 220, 220);"><i
+                                        class="bi bi-trash-fill"></i></button>
                                 <a href="{{ url_for('card_view', deck=deck_path, card=loop.index0) }}"
-                                    class="btn btn-secondary">Edit</a>
+                                    class="btn btn-secondary"><i class="bi bi-pencil-square"></i></a>
                             </div>
                         </form>
 
