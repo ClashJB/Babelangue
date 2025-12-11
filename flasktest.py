@@ -192,7 +192,10 @@ def deck_overview(deck):
 
     if request.method == "POST":
         action = request.form.get("action")
-        card = int(request.form.get("delete_card"))
+        try:
+            card = int(request.form.get("delete_card"))
+        except TypeError:
+            card = None
 
         if action =="delete":
             os.replace(deck.csv_file, f"deleted/{ name }.csv")
@@ -356,7 +359,6 @@ def add():
 
     if request.method == "POST":
         action = request.form.get("action")
-    
         deck_name = request.form.get("deck_name")
         raw = request.form.getlist('selected_langs')
         seen = set()
@@ -453,7 +455,8 @@ def deck_edit(deck):
         seen = set()
         s_langs = [x for x in raw if x and x not in seen and not seen.add(x)]
         
-        if action == "save":
+        
+        if action == "save" or action == "langadd":
             if not deck_name and not s_langs:
                 error = "Missing deck name and language selection"
             elif not deck_name:
@@ -474,6 +477,10 @@ def deck_edit(deck):
                 deck_inst.csv_file = f"data/{secure_filename(deck_name)}.csv"
 
                 deck_inst.langs = d_langs
+
+                if action == "langadd":
+                    deck_inst.ergaenzen()
+
                 deck_inst.save()
                 return redirect("/trainer")
 
