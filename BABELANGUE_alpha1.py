@@ -195,7 +195,8 @@ class Deck:
                     card.row[lang] = deepl_client.translate_text(
                         text= e_card_text, 
                         source_lang= e_card_lang, 
-                        target_lang= lang
+                        target_lang= lang,
+                        context=f"Here are other translations of this word who help determine the context {card.card_row}"
                         )
 
                     
