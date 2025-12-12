@@ -70,7 +70,7 @@
             <h1 class="mb-0">{{ name }}</h1>
             <div>
                 <form method="post">
-                    <button class="btn btn-warning" style="font-size: large;" type="submit" name="action"
+                    <button class="btn btn-primary" style="font-size: large;" type="submit" name="action"
                         value="export"><i class="bi bi-file-earmark-arrow-down"></i> Export</button>
                     <button class="btn btn-secondary" style="font-size: large;" type="submit" name="action"
                         value="edit"><i class="bi bi-pencil-square"></i> Edit</button>
@@ -122,12 +122,11 @@
 
                         <form method="post">
                             <div>
-                                <button class="btn btn-outline-secondary" type="submit" name="delete_card"
-                                    value="{{ loop.index }}"
-                                    style="color: rgb(255, 0, 0); font-weight: bolder; background-color: rgb(220, 220, 220);"><i
-                                        class="bi bi-trash-fill"></i></button>
+                                <button class="btn btn-dark" type="submit" name="delete_card" value="{{ loop.index }}"
+                                    style="font-size: larger; line-height: 1;"><i class="bi bi-trash-fill"></i></button>
                                 <a href="{{ url_for('card_view', deck=deck_path, card=loop.index0) }}"
-                                    class="btn btn-secondary"><i class="bi bi-pencil-square"></i></a>
+                                    class="btn btn-light" style="font-size: larger; line-height: 1;"><i
+                                        class="bi bi-pencil-square"></i></a>
                             </div>
                         </form>
 

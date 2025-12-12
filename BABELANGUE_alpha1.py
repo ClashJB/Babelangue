@@ -101,6 +101,12 @@ class Flashcard:
         self.row["next_review"] = self.next_review
         self.row["last_review"] = self.last_review
         return self.row
+    
+    def update_langs(self, langs):
+        for key in self.row.keys():
+            print(self.row.keys())
+            if not key in (["next_review", "last_review", "box"] + langs):
+                self.row.pop(key)
 
 class Deck:
     def __init__(self, csv_file, langs=None):
@@ -170,7 +176,8 @@ class Deck:
             writer.writeheader()
             try:
                 for card in self.cards:
-                    writer.writerow(card.row)
+                    updated_row = {k:v for k,v in card.row.items() if k in (["next_review", "last_review", "box"] + self.langs)}
+                    writer.writerow(updated_row)
             except AttributeError:
                 pass
         try:

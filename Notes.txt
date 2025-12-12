@@ -1,5 +1,4 @@
-- Add lang to a deck (Translate every existing card)
-- Add context to deepl
+- Link Translate page in deck overview
 
 Scrapped:
 - Randomize card order in train page
