@@ -99,16 +99,19 @@
         <div class="mb-3">
             <form method="POST" class="row g-2 align-items-center">
                 {% for i in range(deck_inst.langs|length) %}
+
                 <div class="col-12 col-sm-6 col-md-4">
                     <label class="form-label">Position {{ i + 1 }}</label>
+
                     <select name="selected_langs" class="form-select">
-                        <option value="">-- choose --</option>
+                        <option value="no_lang">-- choose --</option>
                         {% for l in deck_inst.langs %}
                         <option value="{{ l }}" {% if s_langs and s_langs|length> i and s_langs[i] == l %}selected{%
                             endif %}>{{ l }}</option>
                         {% endfor %}
                     </select>
                 </div>
+
                 {% endfor %}
                 <div class="col-12">
                     <button type="submit" name="action" value="save_langs" class="btn btn-secondary">Save order</button>

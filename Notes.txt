@@ -1,4 +1,5 @@
 - Link Translate page in deck overview
+- Lang order preselected
 
 Scrapped:
 - Randomize card order in train page
