@@ -448,6 +448,7 @@ def deck_edit(deck):
     langs = [x.capitalize() for x in target_langues.keys()]
 
     s_langs = []
+
     for lang_word in expand_languages(target_langues, deck_inst.langs):
         s_langs.append(lang_word)
     s_langs_text = None
@@ -477,8 +478,6 @@ def deck_edit(deck):
                 for lang in s_langs:
                     d_langs.append(target_langues[lang.lower()])
                 
-                
-
                 os.replace(deck_inst.csv_file, f"data/{secure_filename(deck_name)}.csv")
                 deck_inst.csv_file = f"data/{secure_filename(deck_name)}.csv"
 
@@ -506,7 +505,7 @@ def deck_edit(deck):
         name = deck_inst.name,
         deck_path = deck_inst.csv_file,
         s_langs=s_langs,
-        o_langs=expand_languages(target_langues, deck_inst.langs),
+        #o_langs=expand_languages(target_langues, deck_inst.langs),
         langs=langs,
         s_langs_text=s_langs_text,
         deck_name=deck_name,
