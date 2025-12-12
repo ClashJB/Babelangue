@@ -315,6 +315,15 @@ def train(deck):
             raw = request.form.getlist('selected_langs')
             seen = set()
             s_langs = [x for x in raw if x and x not in seen and not seen.add(x)]
+
+            if len([lang for lang in s_langs if lang != "no_lang"]) == len(deck_inst.langs) - 1:
+                for lang in deck_inst.langs:
+                    if not lang in s_langs:
+                        missing_lang = lang
+                for n, lang in enumerate(s_langs):
+                    if lang == "no_lang":
+                        s_langs[n] = missing_lang
+            
             deck_inst.order = s_langs
 
         else:
