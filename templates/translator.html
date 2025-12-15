@@ -31,10 +31,30 @@
 
     <div class="container mt-4">
 
-        <h1 class="mb-2">Translator <h6>á | à | â | ä | é | è | ê | ë | í | ì | î | ï | ó | ò | ô | ö | ú | ù | û | ü |
-                ñ
-            </h6>
-        </h1>
+        <h1 class="mb-2">Translator</h1>
+        <h6>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('á')">á</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('à')">à</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('â')">â</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ä')">ä</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('é')">é</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('è')">è</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ê')">ê</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ë')">ë</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('í')">í</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ì')">ì</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('î')">î</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ï')">ï</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ó')">ó</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ò')">ò</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ô')">ô</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ö')">ö</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ú')">ú</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ù')">ù</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('û')">û</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ü')">ü</button>
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyChar('ñ')">ñ</button>
+        </h6>
 
         {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
@@ -124,6 +144,10 @@
     </div>
 
     <script>
+        function copyChar(char) {
+            navigator.clipboard.writeText(char);
+        }
+
         // Ctrl + enter
         document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -173,9 +197,10 @@
                 // show definitions
                 if (data.definitions && data.definitions.length > 0) {
                     defList.innerHTML = data.definitions.map((def, index) =>
-                        `<button type="button" class="btn btn-sm btn-outline-primary text-start" onclick="appendDefinition('${lang}', '${def.replace(/'/g, "\\'")}')">
-                            ${def}
-                        </button>`
+                        `<button type="button" class="btn btn-sm btn-outline-primary text-start"
+        onclick="appendDefinition('${lang}', '${def.replace(/'/g, " \\'")}')">
+        ${def}
+    </button>`
                     ).join('');
                 } else {
                     defList.innerHTML = '<div class="alert alert-info mb-0">No definitions found.</div>';
