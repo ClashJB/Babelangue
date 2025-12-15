@@ -1,0 +1,7 @@
+Flask==3.0.0
+deepl==1.17.0
+pandas==2.1.4
+pyfiglet==1.0.2
+python-dotenv==1.0.0
+Werkzeug==3.0.1
+requests==2.31.0
