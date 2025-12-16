@@ -52,6 +52,13 @@
                 <span class="fw-bold">BABELANGUE</span>
             </a>
             <div>
+                {% if session.get('username') %}
+                <a class="btn btn-outline-secondary me-2" href="{{ url_for('auth.logout') }}"><i
+                        class="bi bi-box-arrow-left"></i> Logout</a>
+                {% else %}
+                <a class="btn btn-outline-primary me-2" href="{{ url_for('auth.login') }}"><i
+                        class="bi bi-person-fill"></i> Login</a>
+                {% endif %}
                 <a class="btn btn-outline-primary me-2" href="/translator">Translator</a>
                 <a class="btn btn-primary me-2" href="/trainer">Trainer</a>
             </div>
