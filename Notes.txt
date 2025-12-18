@@ -1,5 +1,5 @@
 - Empty deck translator destroys everything!!!W
-
+df
 
 Scrapped:
 - Randomize card order in train page
