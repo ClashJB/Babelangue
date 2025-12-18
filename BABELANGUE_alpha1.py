@@ -12,7 +12,7 @@ import json
 
 load_dotenv("deepl_api_key.env")
 
-auth_key = os.getenv("DEEPL_API_KEY")
+auth_key = "0cfbf9cb-1d99-4832-85a0-adbfd12ee2f5:fx" #os.getenv("DEEPL_API_KEY")
 if not auth_key:
     raise ValueError("Missing DeepL API key. Please set DEEPL_API_KEY in your environment.")
 deepl_client = deepl.DeepLClient(auth_key)
