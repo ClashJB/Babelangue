@@ -2,3 +2,4 @@ deepl_api_key.env
 user_data
 users.db
 build
+dist
