@@ -65,7 +65,7 @@ def translator():
         selected_deck = request.form.get("deck")
         text = request.form.get("text")
 
-        if not selected_deck:
+        if not selected_deck or selected_deck == "None":
             return render_template("translator.html", decks=deck_files, error="Please select a deck.")
 
         deck_path = os.path.join(user_folder, selected_deck)
