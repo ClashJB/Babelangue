@@ -65,7 +65,7 @@ class Flashcard:
     def get_card_row(self):
         pure_row = {}
         for (a, b) in self.row.items():
-            if a in target_langues.values():
+            if a in target_langues.values() or self.name.startswith("verbs_"):
                 pure_row[a] = b
         return pure_row
 
@@ -146,7 +146,7 @@ class Deck:
                 reader = csv.DictReader(file)
                 langs = []
                 for name in reader.fieldnames:
-                    if name in target_langues.values():
+                    if name in target_langues.values() or self.name.startswith("verbs_"):
                         langs.append(name)
                 return langs
             

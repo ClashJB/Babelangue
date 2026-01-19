@@ -72,6 +72,18 @@
                 {% endif %}
             </a>
             {% endfor %}
+
+            {% for (name, n_due, n_cards, deck_path) in verb_info %}
+            <a href="{{ url_for('deck_overview', deck=deck_path) }}"
+                class="list-group-item list-group-item-action list-group-item-danger d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ name }}</div>
+                </div>
+                {% if n_due %}
+                <span class="badge text-bg-primary rounded-pill">{{ n_due }}</span>
+                {% endif %}
+            </a>
+            {% endfor %}
         </div>
 
 

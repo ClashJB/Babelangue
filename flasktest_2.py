@@ -39,7 +39,7 @@ def index():
 @login_required
 def translator():
     user_folder = get_user_folder()
-    deck_files = [f for f in os.listdir(user_folder) if f.endswith(".csv")]
+    deck_files = [f for f in os.listdir(user_folder) if f.endswith(".csv") and not f.startswith("verbs_")]
 
     selected_deck = request.args.get("deck") or request.form.get("deck")
     
@@ -140,8 +140,10 @@ def get_definitions_route():
 @login_required
 def trainer():
     user_folder = get_user_folder()
-    deck_files = [d for d in os.listdir(user_folder) if d.endswith(".csv")]
+    deck_files = [d for d in os.listdir(user_folder) if d.endswith(".csv") and not d.startswith("verbs_")]
+    verb_files = [d for d in os.listdir(user_folder) if d.endswith(".csv") and d.startswith("verbs_")]
     info = []
+    verb_info = []
     deleted_flag = request.args.get("deleted")
 
     for f in deck_files:
@@ -155,10 +157,21 @@ def trainer():
         n_cards = deck.n_cards
         
         info.append((name, langs, n_due, n_cards, langs_text, deck_path))
+
+    for f in verb_files:
+        deck_path = os.path.join(user_folder, f)
+        deck = Deck(deck_path)
+        print()
+        name = os.path.splitext(os.path.basename(deck.csv_file))[0]
+        n_due = deck.n_due
+        n_cards = deck.n_cards 
+
+        verb_info.append((name, n_due, n_cards, deck_path))
         
     return render_template(
         "decklist.html", 
         info=info,
+        verb_info = verb_info,
         deleted=deleted_flag
     )
 
@@ -174,10 +187,13 @@ def deck_overview(deck):
     
     deck = Deck(deck_path)
     name = os.path.splitext(os.path.basename(deck.csv_file))[0]
-    langs = deck.langs
     cards = deck.cards
-    deck_lang_words = expand_languages(target_langues, langs)
-    langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
+    if not name.startswith("verbs_"):
+        langs = deck.langs
+        deck_lang_words = expand_languages(target_langues, langs)
+        langs_text = f"{', '.join(deck_lang_words[:-1])} and {deck_lang_words[-1]}"
+    else:
+        langs_text = "This deck doesn't have langs"
     n_due = deck.n_due
     n_cards = deck.n_cards
     progress = []
@@ -445,7 +461,10 @@ def upload_file():
 
     deck = Deck(upload_path)  
 
-    if not deck.langs:
+    if not deck.langs:  
+        final_path = os.path.join(user_folder, f"verbs_{deck.name}.csv")
+        os.replace(deck.csv_file, final_path)
+        deck.csv_file = final_path
         return render_template(
             "import.html",
             no_langs=True
@@ -529,5 +548,5 @@ def deck_edit(deck):
 
 if __name__ == "__main__":
     import sys
-    debug_mode = '--debug' in sys.argv
+    debug_mode = True #'--debug' in sys.argv
     app.run(host="127.0.0.1", port=5000, debug=debug_mode)
