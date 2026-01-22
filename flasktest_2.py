@@ -161,7 +161,6 @@ def trainer():
     for f in verb_files:
         deck_path = os.path.join(user_folder, f)
         deck = Deck(deck_path)
-        print()
         name = os.path.splitext(os.path.basename(deck.csv_file))[0]
         n_due = deck.n_due
         n_cards = deck.n_cards 

@@ -65,7 +65,7 @@ class Flashcard:
     def get_card_row(self):
         pure_row = {}
         for (a, b) in self.row.items():
-            if a in target_langues.values() or self.name.startswith("verbs_"):
+            if a not in ["next_review", "last_review", "box"]:
                 pure_row[a] = b
         return pure_row
 
