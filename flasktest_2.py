@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 import random
 import secrets
 from auth import auth, login_required
+import csv
+#from mistral_test import image_to_csv
+import pandas
 
 def get_user_folder():
     return f"user_data/{session['username']}"
@@ -457,23 +460,31 @@ def upload_file():
     upload_path = os.path.join(user_folder, "uploads", filename)
     os.makedirs(os.path.join(user_folder, "uploads"), exist_ok=True)
     file.save(upload_path)
+    extension = os.path.splitext(filename)[1].lower()
 
-    deck = Deck(upload_path)  
+    if extension == ".csv":
+        deck = Deck(upload_path)  
 
-    if not deck.langs:  
-        final_path = os.path.join(user_folder, f"verbs_{deck.name}.csv")
+        if not deck.langs:  
+            final_path = os.path.join(user_folder, f"verbs_{deck.name}.csv")
+            os.replace(deck.csv_file, final_path)
+            deck.csv_file = final_path
+            return render_template(
+                "import.html",
+                no_langs=True
+            )
+        
+        final_path = os.path.join(user_folder, f"{deck.name}.csv")
         os.replace(deck.csv_file, final_path)
         deck.csv_file = final_path
-        return render_template(
-            "import.html",
-            no_langs=True
-        )
-    
-    final_path = os.path.join(user_folder, f"{deck.name}.csv")
-    os.replace(deck.csv_file, final_path)
-    deck.csv_file = final_path
 
-    return redirect(url_for("deck_overview", deck=os.path.basename(final_path)))
+        return redirect(url_for("deck_overview", deck=os.path.basename(final_path)))
+    elif extension == ".pdf":
+        #csv_path = image_to_csv(upload_path)
+        
+
+        final_path = os.path.join(user_folder, f"{deck.name}.csv")
+        
 
 @app.route("/deckedit/<path:deck>", methods=["GET","POST"])
 @login_required
@@ -544,6 +555,41 @@ def deck_edit(deck):
         deck_name=deck_name,
         error=error
     )
+
+@app.route("/imagetolist", methods=["GET","POST"])
+@login_required
+def image_to_list():
+    deck_langs = []
+
+    with open("out.csv", "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = [row for row in reader]
+        fieldnames = [fieldname.upper().strip() for fieldname in reader.fieldnames]
+
+        for fieldname in fieldnames:
+            if fieldname in target_langues.values():
+                deck_langs.append(fieldname)
+            else:
+                deck_langs.append("")
+    
+    if request.method == "POST":
+        selected_langs = [
+            request.form.get(f"selected_langs_{i}", "")
+            for i in range(len(request.form))
+            if f"selected_langs_{i}" in request.form
+        ]
+        fieldnames = selected_langs
+        deck_langs = selected_langs
+  
+
+    return render_template(
+        "imagetolist.html",
+        langs=target_langues,
+        fieldnames=fieldnames,
+        rows=rows,
+        deck_langs=deck_langs
+        )
+    
 
 if __name__ == "__main__":
     import sys
