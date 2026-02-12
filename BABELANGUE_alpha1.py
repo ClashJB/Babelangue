@@ -142,11 +142,11 @@ class Deck:
         return progress
 
     def get_langs(self):
-            with open(self.csv_file , mode="r", newline="") as file:
+            with open(self.csv_file , mode="r", newline="", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
                 langs = []
                 for name in reader.fieldnames:
-                    if name in target_langues.values() or self.name.startswith("verbs_"):
+                    if name in target_langues.values():
                         langs.append(name)
                 return langs
             

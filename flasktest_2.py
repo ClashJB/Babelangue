@@ -8,7 +8,7 @@ import random
 import secrets
 from auth import auth, login_required
 import csv
-#from mistral_test import image_to_csv
+from mistral_test import image_to_csv
 import pandas
 
 def get_user_folder():
@@ -480,10 +480,9 @@ def upload_file():
 
         return redirect(url_for("deck_overview", deck=os.path.basename(final_path)))
     elif extension == ".pdf":
-        #csv_path = image_to_csv(upload_path)
-        
-
-        final_path = os.path.join(user_folder, f"{deck.name}.csv")
+        #image_to_csv(upload_path)
+        relative_path = f"{session['username']}/uploads/{filename}"
+        return render_template("imagetolist.html", pdf_path=relative_path)
         
 
 @app.route("/deckedit/<path:deck>", methods=["GET","POST"])
@@ -558,37 +557,54 @@ def deck_edit(deck):
 
 @app.route("/imagetolist", methods=["GET","POST"])
 @login_required
-def image_to_list():
+def image_to_list_edit(file=None, csv_file=None):
     deck_langs = []
 
-    with open("out.csv", "r", encoding="utf-8", newline="") as f:
-        reader = csv.DictReader(f)
-        rows = [row for row in reader]
-        fieldnames = [fieldname.upper().strip() for fieldname in reader.fieldnames]
+    if csv_file:
+        with open(file, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = [row for row in reader]
+            fieldnames = [fieldname.upper().strip() for fieldname in reader.fieldnames]
 
-        for fieldname in fieldnames:
-            if fieldname in target_langues.values():
-                deck_langs.append(fieldname)
-            else:
-                deck_langs.append("")
-    
-    if request.method == "POST":
-        selected_langs = [
-            request.form.get(f"selected_langs_{i}", "")
-            for i in range(len(request.form))
-            if f"selected_langs_{i}" in request.form
-        ]
-        fieldnames = selected_langs
-        deck_langs = selected_langs
-  
+            for fieldname in fieldnames:
+                if fieldname in target_langues.values():
+                    deck_langs.append(fieldname)
+                else:
+                    deck_langs.append("")
 
-    return render_template(
-        "imagetolist.html",
-        langs=target_langues,
-        fieldnames=fieldnames,
-        rows=rows,
-        deck_langs=deck_langs
+        if request.method == "POST":
+            selected_langs = [
+                request.form.get(f"selected_langs_{i}", "")
+                for i in range(len(request.form))
+                if f"selected_langs_{i}" in request.form
+            ]
+            fieldnames = selected_langs
+            deck_langs = selected_langs
+
+        return render_template(
+            "imagetolist.html",
+            langs=target_langues,
+            fieldnames=fieldnames,
+            rows=rows,
+            deck_langs=deck_langs
+            )
+    elif file:
+        return render_template(
+            "imagetolist.html",
+            pdf_path=file
         )
+    
+    return render_template(
+        "imagetolist.html"
+    )
+
+@app.route("/pdf/<path:filepath>")
+@login_required
+def serve_pdf(filepath):
+    if not filepath.startswith(f"{session['username']}/"):
+        return "Access denied", 403
+    return send_file(os.path.join("user_data", filepath), mimetype="application/pdf")
+
     
 
 if __name__ == "__main__":

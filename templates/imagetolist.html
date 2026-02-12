@@ -47,19 +47,30 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Import Deck</li>
+                <li class="breadcrumb-item active" aria-current="page">Image to Deck</li>
             </ol>
         </nav>
 
         <h1 class="mb-4">Import your deck</h1>
 
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <div class="input-group mb-3">
-                <input type="file" class="form-control" id="file" name="file" required>
-            </div>
-            <button class="btn btn-primary" type="submit">Upload</button>
-        </form>
+        <div>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="file" name="file" required>
+                </div>
+                <button class="btn btn-primary" type="submit">Upload</button>
+            </form>
+            {% if pdf_path %}
+            <a href="/to_csv" class="btn btn-success">Turn into Deck</a>
+        </div>
+        <iframe src="{{ url_for('serve_pdf', filepath=pdf_path) }}"
+                width="50%" height="600px"
+                style="border: none;">
+        </iframe>
+        {% endif %}
+        
 
+        {% if fieldnames %}
         <form method="POST">
             <table class="table">
                 <thead>
@@ -70,9 +81,10 @@
                         {% set col_idx = loop.index0 %}
                         <td>
                             <div class="dropdown">
-                                <button class="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}Dropdown{%
-                                    endif %}
+                                <button class="btn btn-outline-{% if fieldname == deck_langs[loop.index0] %}success{% else %}danger{%
+                                    endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}<em>{{ fieldname }}</em>{%
+                                        endif %}
                                 </button>
                                 <ul class="dropdown-menu p-0">
                                     <div class="card border-0">
@@ -112,5 +124,6 @@
             </table>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+        {% endif %}
     </div>
 </body>
