@@ -1,10 +1,8 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, session, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, session
 from werkzeug.utils import secure_filename
 from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
-import glob
 from datetime import datetime, timedelta
-import random
 import secrets
 from auth import auth, login_required
 import csv
@@ -678,4 +676,4 @@ def serve_pdf(filepath):
 if __name__ == "__main__":
     import sys
     debug_mode = True #'--debug' in sys.argv
-    app.run(host="127.0.0.1", port=5000, debug=debug_mode)
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
