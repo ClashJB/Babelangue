@@ -10,6 +10,7 @@ from auth import auth, login_required
 import csv
 from mistral_test import image_to_csv
 import pandas
+from pdf2image import convert_from_path
 
 def get_user_folder():
     return f"user_data/{session['username']}"
@@ -481,8 +482,19 @@ def upload_file():
         return redirect(url_for("deck_overview", deck=os.path.basename(final_path)))
     elif extension == ".pdf":
         #image_to_csv(upload_path)
+        print(upload_path)
+        filename = f"{os.path.splitext(filename)[0]}.png"
+        print(filename)
+
         relative_path = f"{session['username']}/uploads/{filename}"
-        return render_template("imagetolist.html", pdf_path=relative_path)
+        print(relative_path)
+
+        images = convert_from_path(upload_path, dpi=300, first_page=1, last_page=1)
+        images[0].save(f"{os.path.splitext(upload_path)[0]}.png", "PNG")
+
+        return redirect(url_for("image_to_list",file=relative_path))
+
+
         
 
 @app.route("/deckedit/<path:deck>", methods=["GET","POST"])
@@ -555,13 +567,18 @@ def deck_edit(deck):
         error=error
     )
 
-@app.route("/imagetolist", methods=["GET","POST"])
+@app.route("/imagetolist/<path:file>", methods=["GET","POST"])
 @login_required
-def image_to_list_edit(file=None, csv_file=None):
+def image_to_list(file=None):
     deck_langs = []
+    file_no_extension = os.path.splitext(file)[0]
+    file_extension = os.path.splitext(file)[1]
+    
 
-    if csv_file:
-        with open(file, "r", encoding="utf-8", newline="") as f:
+    if file_extension == ".csv":
+        full_path = os.path.join("user_data", file)
+        filename = os.path.split(file)[1]
+        with open(full_path, "r", encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             rows = [row for row in reader]
             fieldnames = [fieldname.upper().strip() for fieldname in reader.fieldnames]
@@ -573,13 +590,35 @@ def image_to_list_edit(file=None, csv_file=None):
                     deck_langs.append("")
 
         if request.method == "POST":
+            action = request.form.get("action")
+            try:
+                n_column = int(request.form.get("delete_column"))
+            except (TypeError, ValueError):
+                n_column = None
+
+            if n_column:
+                user_folder = get_user_folder()
+                deleted_folder = os.path.join(user_folder, "deleted")
+
+                df = pandas.read_csv(full_path)
+
+                os.makedirs(deleted_folder, exist_ok=True)
+                os.replace(full_path, os.path.join(deleted_folder, filename))
+
+                df.drop(df.columns[n_column], axis=1, inplace=True)
+                df.to_csv(full_path, index=False)
+
             selected_langs = [
                 request.form.get(f"selected_langs_{i}", "")
                 for i in range(len(request.form))
                 if f"selected_langs_{i}" in request.form
             ]
+            with open(full_path, "w", encoding="utf-8", newline="") as f:
+                ...
             fieldnames = selected_langs
             deck_langs = selected_langs
+
+        
 
         return render_template(
             "imagetolist.html",
@@ -588,15 +627,22 @@ def image_to_list_edit(file=None, csv_file=None):
             rows=rows,
             deck_langs=deck_langs
             )
-    elif file:
+    elif file_extension == ".png":
+        if request.method == "POST":
+            action = request.form.get("action")
+            if action == "into_csv":
+                pdf_path = f"{file_no_extension}.pdf"
+                csv_path = f"{file_no_extension}.csv"
+                image_to_csv(os.path.join("user_data", pdf_path))
+                return redirect(url_for("image_to_list", file=csv_path))
+
+
         return render_template(
             "imagetolist.html",
             pdf_path=file
         )
     
-    return render_template(
-        "imagetolist.html"
-    )
+
 
 @app.route("/pdf/<path:filepath>")
 @login_required
