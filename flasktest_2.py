@@ -573,11 +573,17 @@ def image_to_list(file=None):
     deck_langs = []
     file_no_extension = os.path.splitext(file)[0]
     file_extension = os.path.splitext(file)[1]
+    user_folder = get_user_folder()
+    deleted_folder = os.path.join(user_folder, "deleted")
+    os.makedirs(deleted_folder, exist_ok=True)
+    full_path = os.path.join("user_data", file)
+    filename = os.path.split(file)[1]
     
 
     if file_extension == ".csv":
-        full_path = os.path.join("user_data", file)
-        filename = os.path.split(file)[1]
+        reset_check = filename in os.listdir(deleted_folder)
+        langs_check = True
+
         with open(full_path, "r", encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             rows = [row for row in reader]
@@ -587,6 +593,7 @@ def image_to_list(file=None):
                 if fieldname in target_langues.values():
                     deck_langs.append(fieldname)
                 else:
+                    langs_check = False
                     deck_langs.append("")
 
         if request.method == "POST":
@@ -596,36 +603,44 @@ def image_to_list(file=None):
             except (TypeError, ValueError):
                 n_column = None
 
+            selected_langs = []
+            for i in range(len(fieldnames)):
+                selected_langs.append(
+                    request.form.get(f"selected_langs_{i}", fieldnames[i]) 
+                )
+
+            print(selected_langs)
+
+            df = pandas.read_csv(full_path)
+            df.columns = selected_langs
+
             if n_column:
-                user_folder = get_user_folder()
-                deleted_folder = os.path.join(user_folder, "deleted")
+                if (len(fieldnames)) > 2:
+                    os.replace(full_path, os.path.join(deleted_folder, filename))
+                    df.drop(df.columns[n_column], axis=1, inplace=True)
+                else:
+                    ...
+            df.to_csv(full_path, index=False)
 
-                df = pandas.read_csv(full_path)
+            if action == "reset":
+                if filename in os.listdir(deleted_folder):
+                    os.remove(full_path)
+                    os.replace(os.path.join(deleted_folder, filename), full_path)
 
-                os.makedirs(deleted_folder, exist_ok=True)
-                os.replace(full_path, os.path.join(deleted_folder, filename))
+            if action == "to_deck":
+                os.replace(full_path, os.path.join(user_folder, filename))
+                return redirect(url_for("deck_overview", deck=os.path.join(user_folder, filename)))
 
-                df.drop(df.columns[n_column], axis=1, inplace=True)
-                df.to_csv(full_path, index=False)
-
-            selected_langs = [
-                request.form.get(f"selected_langs_{i}", "")
-                for i in range(len(request.form))
-                if f"selected_langs_{i}" in request.form
-            ]
-            with open(full_path, "w", encoding="utf-8", newline="") as f:
-                ...
-            fieldnames = selected_langs
-            deck_langs = selected_langs
-
-        
+            return redirect(url_for("image_to_list", file=file))
 
         return render_template(
             "imagetolist.html",
             langs=target_langues,
             fieldnames=fieldnames,
             rows=rows,
-            deck_langs=deck_langs
+            deck_langs=deck_langs,
+            reset_check=reset_check,
+            langs_check=langs_check
             )
     elif file_extension == ".png":
         if request.method == "POST":

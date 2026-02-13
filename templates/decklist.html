@@ -46,17 +46,15 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="mb-0">Your decks:</h1>
             <div>
-                <div class="btn-group">
-                    <a href="/add" class="btn btn-success" style="font-size: large;"><i
-                            class="bi bi-plus-square"></i> Add</a>
-                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                    </button>
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: large;"><i
+                            class="bi bi-plus-square"></i> Add</button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/import"><i class="bi bi-file-earmark-plus"></i> Import</a>
                         </li>
-                        <li><a class="dropdown-item" href="/imagetolist">Image to Deck</a></li>
+                        <li><a class="dropdown-item" href="/add">
+                            <i class="bi bi-plus-circle"></i> Create New
+                        </a></li>
                     </ul>
                 </div>
             </div>

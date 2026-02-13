@@ -51,84 +51,102 @@
             </ol>
         </nav>
 
-        <h1 class="mb-4">Image to Deck</h1>
+        
+        
 
         <form method="POST" id="mainForm">
             <input type="hidden" name="action" value="">
-            {% if pdf_path %}
-            <div>
-                <button class="btn btn-success" name="into_csv" type="button" onclick="submitForm('into_csv')">Turn into
-                    Deck</button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Image to Deck</h1>
+                <div>
+                    {% if pdf_path %}
+                    <button class="btn btn-success" name="into_csv" type="button" onclick="submitForm('into_csv')">Turn into
+                        Deck
+                    </button>
+                    {% endif %}
+                    {% if fieldnames %}
+                    <button class="btn btn-secondary" name="reset" type="button" {% if not reset_check %}disabled{% endif %} onclick="submitForm('reset')">
+                        Reset
+                    </button>
+                    <button class="btn btn-success" name="to_deck" type="button" {% if not langs_check %}disabled{% endif %} onclick="submitForm('to_deck')">
+                        To Deck
+                    </button>
+                    {% endif %}
+                </div>
             </div>
-
-            <img src="{{ url_for('serve_pdf', filepath=pdf_path) }}" alt="Document" style="max-width:50%; height:auto;">
-            {% endif %}
-
-
-            {% if fieldnames %}
-            <table class="table">
-                <thead>
-                    <tr style="line-height: 1;font-size: 80%; padding: 0.0rem;">
-                        <td class="bg-light"></td>
-                        {% for fieldname in fieldnames %}
-                        <td class="bg-light">
-                            <button type="submit" value="{{ loop.index0 }}" name="delete_column"
-                                class="btn btn-danger w-100" style="font-size: 100%;line-height: 1;"><i
-                                    class="bi bi-trash-fill"></i> Delete</button>
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <th scope="row">#</th>
-                        {% for fieldname in fieldnames %}
-                        {% set col_idx = loop.index0 %}
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-{% if fieldname == deck_langs[loop.index0] %}success{% else %}danger{%
-                                    endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}<em>{{
-                                        fieldname }}</em>{%
-                                    endif %}
-                                </button>
-                                <ul class="dropdown-menu p-0">
-                                    <div class="card border-0">
-                                        <div class="card-body">
-                                            <div class="row row-cols-2">
-                                                {% for lang in langs.values() %}
-                                                <div class="form-check">
-                                                    <input name="selected_langs_{{ col_idx }}" class="form-check-input"
-                                                        type="radio" id="radio_{{ col_idx }}_{{ loop.index0 }}"
-                                                        value="{{ lang }}" {% if lang==fieldname %}checked{% elif lang
-                                                        in deck_langs %}disabled{% endif %}
-                                                        onchange="submitForm('lang_change')">
-                                                    <label class="form-check-label"
-                                                        for="radio_{{ col_idx }}_{{ loop.index0 }}">
-                                                        {{ lang }}
-                                                    </label>
+            
+            <div>
+                {% if pdf_path %}
+                <img src="{{ url_for('serve_pdf', filepath=pdf_path) }}" alt="Document" style="max-width:50%; height:auto;">
+                {% endif %}
+                {% if fieldnames %}
+                <table class="table">
+                    <thead>
+                        <tr style="line-height: 1;font-size: 80%; padding: 0.0rem;">
+                            <td class="bg-light"></td>
+                            {% for fieldname in fieldnames %}
+                            <td class="bg-light">
+                                <button type="submit" value="{{ loop.index0 }}" name="delete_column"
+                                    class="btn btn-danger w-100" style="font-size: 100%;line-height: 1;"><i
+                                        class="bi bi-trash-fill"></i> Delete</button>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <th scope="row">#</th>
+                            {% for fieldname in fieldnames %}
+                            {% set col_idx = loop.index0 %}
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-{% if fieldname == deck_langs[loop.index0] %}success{% else %}danger{%
+                                        endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}<em>{{
+                                            fieldname }}</em>{%
+                                        endif %}
+                                    </button>
+                                    <ul class="dropdown-menu p-0">
+                                        <div class="card border-0">
+                                            <div class="card-body">
+                                                <div class="row row-cols-2">
+                                                    {% for lang in langs.values() %}
+                                                    <div class="form-check">
+                                                        <input name="selected_langs_{{ col_idx }}" class="form-check-input"
+                                                            type="radio" id="radio_{{ col_idx }}_{{ loop.index0 }}"
+                                                            value="{{ lang }}" {% if lang==fieldname %}checked{% elif lang
+                                                            in deck_langs %}disabled{% endif %}
+                                                            onchange="submitForm('lang_change')">
+                                                        <label class="form-check-label"
+                                                            for="radio_{{ col_idx }}_{{ loop.index0 }}">
+                                                            {{ lang }}
+                                                        </label>
+                                                    </div>
+                                                    {% endfor %}
                                                 </div>
-                                                {% endfor %}
                                             </div>
                                         </div>
-                                    </div>
-                                </ul>
-                            </div>
-                        </td>
+                                    </ul>
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            {% for item in row.values() %}
+                            <td>{{ item }}</td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in rows %}
-                    <tr>
-                        <th scope="row">{{ loop.index }}</th>
-                        {% for item in row.values() %}
-                        <td>{{ item }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            {% endif %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+            
+
+
+            
     </div>
 
     </form>

@@ -77,12 +77,27 @@
             <h1 class="mb-0">{{ name }}</h1>
             <div>
                 <form method="post">
-                    <button class="btn btn-primary" style="font-size: large;" type="submit" name="action"
-                        value="export"><i class="bi bi-file-earmark-arrow-down"></i> Export</button>
-                    <button class="btn btn-secondary" style="font-size: large;" type="submit" name="action"
-                        value="edit"><i class="bi bi-pencil-square"></i> Edit</button>
-                    <button class="btn btn-danger" style="font-size: large;" type="submit" name="action"
-                        value="delete"><i class="bi bi-trash-fill"></i> Delete</button>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" style="font-size: large;" type="submit" name="action"
+                            value="edit"><i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button class="dropdown-item" type="submit" name="action"
+                                    value="export"><i class="bi bi-file-earmark-arrow-down"></i> Export
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" type="submit" name="action"
+                                    value="delete"><i class="bi bi-trash-fill"></i> Delete
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                     <a href="{{ url_for('train', deck=deck_path) }}" class="btn btn-success" type="button"
                         style="font-size: large;">
                         <i class="bi bi-play-fill"></i> Train
