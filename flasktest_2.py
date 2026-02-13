@@ -11,6 +11,7 @@ import csv
 from mistral_test import image_to_csv
 import pandas
 from pdf2image import convert_from_path
+from PIL import Image
 
 def get_user_folder():
     return f"user_data/{session['username']}"
@@ -18,6 +19,10 @@ def get_user_folder():
 def expand_languages(d=dict, values=list):
     inverse = {v: k for k, v in d.items()}
     return [inverse[val].capitalize() for val in values if val in inverse]
+
+def image_to_pdf(image_path, pdf_path):
+    image = Image.open(image_path)
+    image.save(pdf_path, "PDF", resolution=100.0)
 
 def lang_code_to_dict_api(lang_code):
     mapping = {
@@ -481,18 +486,19 @@ def upload_file():
 
         return redirect(url_for("deck_overview", deck=os.path.basename(final_path)))
     elif extension == ".pdf":
-        #image_to_csv(upload_path)
-        print(upload_path)
         filename = f"{os.path.splitext(filename)[0]}.png"
-        print(filename)
-
         relative_path = f"{session['username']}/uploads/{filename}"
-        print(relative_path)
 
         images = convert_from_path(upload_path, dpi=300, first_page=1, last_page=1)
         images[0].save(f"{os.path.splitext(upload_path)[0]}.png", "PNG")
 
         return redirect(url_for("image_to_list",file=relative_path))
+    elif extension == ".jpg" or extension == ".png":
+        relative_path = f"{session['username']}/uploads/{filename}"
+        image_to_pdf(upload_path, f"{os.path.splitext(upload_path)[0]}.pdf")
+
+        return redirect(url_for("image_to_list",file=relative_path))
+
 
 
         
