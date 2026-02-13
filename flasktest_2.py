@@ -620,12 +620,13 @@ def image_to_list(file=None):
             df = pandas.read_csv(full_path)
             df.columns = selected_langs
 
-            if n_column:
+            print(n_column)
+            if n_column or n_column == 0:
                 if (len(fieldnames)) > 2:
                     os.replace(full_path, os.path.join(deleted_folder, filename))
                     df.drop(df.columns[n_column], axis=1, inplace=True)
                 else:
-                    ...
+                    print("less than 2 fieldnames if we would delete this one")
             df.to_csv(full_path, index=False)
 
             if action == "reset":
@@ -648,7 +649,7 @@ def image_to_list(file=None):
             reset_check=reset_check,
             langs_check=langs_check
             )
-    elif file_extension == ".png":
+    elif file_extension == ".png" or file_extension == ".jpg":
         if request.method == "POST":
             action = request.form.get("action")
             if action == "into_csv":
