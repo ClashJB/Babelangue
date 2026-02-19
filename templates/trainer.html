@@ -1,133 +1,89 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BABELANGUE | Trainer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+{% block nav_button_translator %}-outline{% endblock %}
+{% block nav_button_trainer %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <a href="{{ url_for('deck_overview', deck=deck_path) }}" class="btn btn-secondary mb-3">Exit</a>
+    <h1 class="mb-4">Train | <small>{{ name }}</small></h1>
 
-    <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-    <link rel="shortcut icon" href="/static/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Babelangue" />
-    <link rel="manifest" href="/static/site.webmanifest" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-</head>
-
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/static/babelangue_logo.png" alt="Logo" width="40" height="40" class="me-2">
-                <span class="fw-bold">BABELANGUE</span>
-            </a>
-            <div>
-                {% if session.get('username') %}
-                <a class="btn btn-outline-secondary me-2" href="{{ url_for('auth.logout') }}"><i
-                        class="bi bi-box-arrow-left"></i> Logout</a>
-                {% else %}
-                <a class="btn btn-outline-primary me-2" href="{{ url_for('auth.login') }}"><i
-                        class="bi bi-person-fill"></i> Login</a>
-                {% endif %}
-                <a class="btn btn-outline-primary me-2" href="/translator">Translator</a>
-                <a class="btn btn-primary me-2" href="/trainer">Trainer</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <a href="{{ url_for('deck_overview', deck=deck_path) }}" class="btn btn-secondary mb-3">Exit</a>
-        <h1 class="mb-4">Train | <small>{{ name }}</small></h1>
-
-        <div class="progress mb-4" role="progressbar" aria-label="Example with label"
-            aria-valuenow="{{ due_percentage }}" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar bg-success" style="width: {{ due_percentage }}%"></div>
-        </div>
-
-        <hr class="mt-4">
-
-
-
-
-        {% if row %}
-        <div id="carouselExample" class="carousel slide carousel-dark mb-3">
-            <div class="carousel-indicators">
-                {% for _ in row %}
-                <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}"
-                    class="{{ 'active' if loop.index0 == 0 else '' }}"
-                    aria-current="{{ 'true' if loop.index0 == 0 else 'false' }}"
-                    aria-label="Slide {{ loop.index }}"></button>
-                {% endfor %}
-            </div>
-            <div class="carousel-inner">
-                {% for lang, tr in row.items() %}
-                <div class="carousel-item{{ ' active' if loop.index0 == 0 else '' }}">
-                    <div class="card shadow-lg mx-auto" style="max-width: 600px; min-height: 400px;">
-                        <div class="card-body d-flex flex-column justify-content-center text-center">
-                            <h5 class="card-title">{{ lang }}</h5>
-                            <h2>{{ tr }}</h2>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-        <div class="container" style="max-width: 600px;">
-            <form method="POST">
-                <div class="d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" name="action" value="dont_know" class="btn btn-danger">Don't
-                            know</button>
-                        <button type="submit" name="action" value="know_it" class="btn btn-success">Know it</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        {% endif %}
-
-        <hr class="mt-4">
-
-        <div class="mb-3">
-            <form method="POST" class="row g-2 align-items-center">
-                {% for i in range(deck_inst.langs|length) %}
-
-                <div class="col-12 col-sm-6 col-md-4">
-                    <label class="form-label">Position {{ i + 1 }}</label>
-
-                    <select name="selected_langs" class="form-select">
-                        <option value="no_lang">-- choose --</option>
-                        {% for l in deck_inst.langs %}
-                        <option value="{{ l }}" {% if s_langs and s_langs|length> i and s_langs[i] == l %}selected{%
-                            endif %}>{{ l }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                {% endfor %}
-                <div class="col-12">
-                    <button type="submit" name="action" value="save_langs" class="btn btn-secondary">Save order</button>
-                </div>
-            </form>
-        </div>
-
+    <div class="progress mb-4" role="progressbar" aria-label="Example with label" aria-valuenow="{{ due_percentage }}"
+        aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success" style="width: {{ due_percentage }}%"></div>
     </div>
 
-</body>
+    <hr class="mt-4">
 
-</html>
+
+    {% if row %}
+    <div id="carouselExample" class="carousel slide carousel-dark mb-3">
+        <div class="carousel-indicators">
+            {% for _ in row %}
+            <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}"
+                class="{{ 'active' if loop.index0 == 0 else '' }}"
+                aria-current="{{ 'true' if loop.index0 == 0 else 'false' }}"
+                aria-label="Slide {{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for lang, tr in row.items() %}
+            <div class="carousel-item{{ ' active' if loop.index0 == 0 else '' }}">
+                <div class="card shadow-lg mx-auto" style="max-width: 600px; min-height: 400px;">
+                    <div class="card-body d-flex flex-column justify-content-center text-center">
+                        <h5 class="card-title">{{ lang }}</h5>
+                        <h2>{{ tr }}</h2>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div class="container" style="max-width: 600px;">
+        <form method="POST">
+            <div class="d-flex flex-column justify-content-center">
+                <div class="d-flex justify-content-between">
+                    <button type="submit" name="action" value="dont_know" class="btn btn-danger">Don't
+                        know</button>
+                    <button type="submit" name="action" value="know_it" class="btn btn-success">Know it</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <hr class="mt-4">
+
+    <div class="mb-3">
+        <form method="POST" class="row g-2 align-items-center">
+            {% for i in range(deck_inst.langs|length) %}
+
+            <div class="col-12 col-sm-6 col-md-4">
+                <label class="form-label">Position {{ i + 1 }}</label>
+
+                <select name="selected_langs" class="form-select">
+                    <option value="no_lang">-- choose --</option>
+                    {% for l in deck_inst.langs %}
+                    <option value="{{ l }}" {% if s_langs and s_langs|length> i and s_langs[i] == l %}selected{%
+                        endif %}>{{ l }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% endfor %}
+            <div class="col-12">
+                <button type="submit" name="action" value="save_langs" class="btn btn-secondary">Save order</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,158 +1,109 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BABELANGUE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-
-    <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-    <link rel="shortcut icon" href="/static/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Babelangue" />
-    <link rel="manifest" href="/static/site.webmanifest" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-</head>
-
-<body class="bg-light text-dark">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/static/babelangue_logo.png" alt="Logo" width="40" height="40" class="me-2">
-                <span class="fw-bold">BABELANGUE</span>
-            </a>
-            <div>
-                {% if session.get('username') %}
-                <a class="btn btn-outline-secondary me-2" href="{{ url_for('auth.logout') }}"><i
-                        class="bi bi-box-arrow-left"></i> Logout</a>
-                {% else %}
-                <a class="btn btn-outline-primary me-2" href="{{ url_for('auth.login') }}"><i
-                        class="bi bi-person-fill"></i> Login</a>
-                {% endif %}
-                <a class="btn btn-outline-primary me-2" href="/translator">Translator</a>
-                <a class="btn btn-outline-primary me-2" href="/trainer">Trainer</a>
-            </div>
-        </div>
+{% block nav_button_translator %}-outline{% endblock %}
+{% block nav_button_trainer %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Image to Deck</li>
+        </ol>
     </nav>
 
-    <div class="container mt-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Image to Deck</li>
-            </ol>
-        </nav>
-
-        
-        
-
-        <form method="POST" id="mainForm">
-            <input type="hidden" name="action" value="">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">Image to Deck</h1>
-                <div>
-                    {% if pdf_path %}
-                    <button class="btn btn-success" name="into_csv" type="button" onclick="submitForm('into_csv')">Turn into
-                        Deck
-                    </button>
-                    {% endif %}
-                    {% if fieldnames %}
-                    <button class="btn btn-secondary" name="reset" type="button" {% if not reset_check %}disabled{% endif %} onclick="submitForm('reset')">
-                        Reset
-                    </button>
-                    <button class="btn btn-success" name="to_deck" type="button" {% if not langs_check %}disabled{% endif %} onclick="submitForm('to_deck')">
-                        To Deck
-                    </button>
-                    {% endif %}
-                </div>
-            </div>
-            
+    <form method="POST" id="mainForm">
+        <input type="hidden" name="action" value="">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Image to Deck</h1>
             <div>
                 {% if pdf_path %}
-                <img src="{{ url_for('serve_pdf', filepath=pdf_path) }}" alt="Document" style="max-width:50%; height:auto;">
+                <button class="btn btn-success" name="into_csv" type="button" onclick="submitForm('into_csv')">Turn into
+                    Deck
+                </button>
                 {% endif %}
                 {% if fieldnames %}
-                <table class="table">
-                    <thead>
-                        <tr style="line-height: 1;font-size: 80%; padding: 0.0rem;">
-                            <td class="bg-light"></td>
-                            {% for fieldname in fieldnames %}
-                            <td class="bg-light">
-                                <button type="submit" value="{{ loop.index0 }}" name="delete_column"
-                                    class="btn btn-danger w-100" style="font-size: 100%;line-height: 1;"><i
-                                        class="bi bi-trash-fill"></i> Delete</button>
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="row">#</th>
-                            {% for fieldname in fieldnames %}
-                            {% set col_idx = loop.index0 %}
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-{% if fieldname == deck_langs[loop.index0] %}success{% else %}danger{%
-                                        endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}<em>{{
-                                            fieldname }}</em>{%
-                                        endif %}
-                                    </button>
-                                    <ul class="dropdown-menu p-0">
-                                        <div class="card border-0">
-                                            <div class="card-body">
-                                                <div class="row row-cols-2">
-                                                    {% for lang in langs.values() %}
-                                                    <div class="form-check">
-                                                        <input name="selected_langs_{{ col_idx }}" class="form-check-input"
-                                                            type="radio" id="radio_{{ col_idx }}_{{ loop.index0 }}"
-                                                            value="{{ lang }}" {% if lang==fieldname %}checked{% elif lang
-                                                            in deck_langs %}disabled{% endif %}
-                                                            onchange="submitForm('lang_change')">
-                                                        <label class="form-check-label"
-                                                            for="radio_{{ col_idx }}_{{ loop.index0 }}">
-                                                            {{ lang }}
-                                                        </label>
-                                                    </div>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ul>
-                                </div>
-                            </td>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in rows %}
-                        <tr>
-                            <th scope="row">{{ loop.index }}</th>
-                            {% for item in row.values() %}
-                            <td>{{ item }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <button class="btn btn-secondary" name="reset" type="button" {% if not reset_check %}disabled{% endif %}
+                    onclick="submitForm('reset')">
+                    Reset
+                </button>
+                <button class="btn btn-success" name="to_deck" type="button" {% if not langs_check %}disabled{% endif %}
+                    onclick="submitForm('to_deck')">
+                    To Deck
+                </button>
                 {% endif %}
             </div>
-            
+        </div>
 
-
-            
-    </div>
-
-    </form>
-
-
-</body>
+        <div>
+            {% if pdf_path %}
+            <img src="{{ url_for('serve_pdf', filepath=pdf_path) }}" alt="Document" style="max-width:50%; height:auto;">
+            {% endif %}
+            {% if fieldnames %}
+            <table class="table">
+                <thead>
+                    <tr style="line-height: 1;font-size: 80%; padding: 0.0rem;">
+                        <td class="bg-light"></td>
+                        {% for fieldname in fieldnames %}
+                        <td class="bg-light">
+                            <button type="submit" value="{{ loop.index0 }}" name="delete_column"
+                                class="btn btn-danger w-100" style="font-size: 100%;line-height: 1;"><i
+                                    class="bi bi-trash-fill"></i> Delete</button>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th scope="row">#</th>
+                        {% for fieldname in fieldnames %}
+                        {% set col_idx = loop.index0 %}
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-{% if fieldname == deck_langs[loop.index0] %}success{% else %}danger{%
+                                        endif %}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {% if fieldname == deck_langs[loop.index0] %}{{ fieldname }}{% else %}<em>{{
+                                        fieldname }}</em>{%
+                                    endif %}
+                                </button>
+                                <ul class="dropdown-menu p-0">
+                                    <div class="card border-0">
+                                        <div class="card-body">
+                                            <div class="row row-cols-2">
+                                                {% for lang in langs.values() %}
+                                                <div class="form-check">
+                                                    <input name="selected_langs_{{ col_idx }}" class="form-check-input"
+                                                        type="radio" id="radio_{{ col_idx }}_{{ loop.index0 }}"
+                                                        value="{{ lang }}" {% if lang==fieldname %}checked{% elif lang
+                                                        in deck_langs %}disabled{% endif %}
+                                                        onchange="submitForm('lang_change')">
+                                                    <label class="form-check-label"
+                                                        for="radio_{{ col_idx }}_{{ loop.index0 }}">
+                                                        {{ lang }}
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ul>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        {% for item in row.values() %}
+                        <td>{{ item }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+</div>
+</form>
 
 <script>
     function submitForm(action) {
@@ -160,3 +111,4 @@
         document.getElementById('mainForm').submit();
     }
 </script>
+{% endblock %}

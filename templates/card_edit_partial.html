@@ -1,0 +1,18 @@
+<div class="card h-100" id="card-{{ index }}-container">
+    <form method="post" hx-post="{{ url_for('card_edit_partial', deck=deck_path, card=index) }}"
+        hx-target="#card-{{ index }}-container" hx-swap="outerHTML">
+        <div class="card-header d-flex justify-content-between align-items-center py-1 bg-step-{{ card.box - 1 }}">
+            <span class="badge" style="font-size: large;">{{ index + 1 }}.</span>
+            <button type="submit" class="btn btn-success" style="font-size: larger; line-height: 1;" title="Save"><i
+                    class="bi bi-check-lg"></i></button>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for lang in langs %}
+            <li class="list-group-item">
+                <small class="text-muted text-uppercase">{{ lang }}</small><br>
+                <input type="text" class="form-control" name="edited_{{ lang }}" value="{{ card.card_row[lang] }}">
+            </li>
+            {% endfor %}
+        </ul>
+    </form>
+</div>

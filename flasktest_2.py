@@ -1,3 +1,5 @@
+# HTMX partial for inline card editing
+
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, session
 from werkzeug.utils import secure_filename
@@ -253,6 +255,36 @@ def deck_overview(deck):
         progress=progress,
         cards=cards,
         deck_path=os.path.basename(deck.csv_file),
+    )
+
+@app.route("/card_edit_partial/<path:deck>/<int:card>", methods=["GET", "POST"])
+@login_required
+def card_edit_partial(deck, card):
+    user_folder = get_user_folder()
+    deck_path = os.path.join(user_folder, os.path.basename(deck))
+    deck_inst = Deck(deck_path)
+    langs = deck_inst.langs
+    if card < 0 or card >= len(deck_inst.cards):
+        return "Card not found 404"
+    card_obj = deck_inst.cards[card]
+    if request.method == "POST":
+        for lang in langs:
+            deck_inst.cards[card].row[lang] = request.form.get(f"edited_{lang}")
+        deck_inst.save()
+        deck_inst = Deck(deck_path)
+        card_obj = deck_inst.cards[card]
+        return render_template(
+            "card_display_partial.html",
+            card=card_obj,
+            index=card,
+            deck_path=os.path.basename(deck_inst.csv_file)
+        )
+    return render_template(
+        "card_edit_partial.html",
+        card=card_obj,
+        langs=langs,
+        index=card,
+        deck_path=os.path.basename(deck_inst.csv_file)
     )
 
 @app.route("/card/<path:deck>/<card>", methods=["GET", "POST"])

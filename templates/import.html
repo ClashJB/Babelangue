@@ -1,71 +1,30 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BABELANGUE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-
-    <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-    <link rel="shortcut icon" href="/static/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Babelangue" />
-    <link rel="manifest" href="/static/site.webmanifest" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-</head>
-
-<body class="bg-light text-dark">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/static/babelangue_logo.png" alt="Logo" width="40" height="40" class="me-2">
-                <span class="fw-bold">BABELANGUE</span>
-            </a>
-            <div>
-                {% if session.get('username') %}
-                <a class="btn btn-outline-secondary me-2" href="{{ url_for('auth.logout') }}"><i
-                        class="bi bi-box-arrow-left"></i> Logout</a>
-                {% else %}
-                <a class="btn btn-outline-primary me-2" href="{{ url_for('auth.login') }}"><i
-                        class="bi bi-person-fill"></i> Login</a>
-                {% endif %}
-                <a class="btn btn-outline-primary me-2" href="/translator">Translator</a>
-                <a class="btn btn-primary me-2" href="/trainer">Trainer</a>
-            </div>
-        </div>
+{% block nav_button_translator %}-outline{% endblock %}
+{% block nav_button_trainer %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Import Deck</li>
+        </ol>
     </nav>
 
-    <div class="container mt-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/trainer">Your Decks</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Import Deck</li>
-            </ol>
-        </nav>
+    <h1 class="mb-4">Import your deck</h1>
 
-        <h1 class="mb-4">Import your deck</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <input type="file" class="form-control" id="file" name="file" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Upload</button>
+    </form>
 
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <div class="input-group mb-3">
-                <input type="file" class="form-control" id="file" name="file" required>
-            </div>
-            <button class="btn btn-primary" type="submit">Upload</button>
-        </form>
+    {% if no_langs %}
+    <div class="alert alert-danger mt-4">There are no langs the deck could work with so you can't really do nothing
+        with
+        this.</div>
+    {% endif %}
 
-        {% if no_langs %}
-        <div class="alert alert-danger mt-4">There are no langs the deck could work with so you can't really do nothing
-            with
-            this.</div>
-        {% endif %}
-
-    </div>
-
-</body>
+</div>
+{% endblock %}
