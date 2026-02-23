@@ -66,7 +66,10 @@ class Flashcard:
         self.box = self.get_box()
 
     def get_box(self):
-        ...
+        box_threshold = [1.3, 2.0, 2.5, 3.0, 4.0]
+        for n, threshold in enumerate(box_threshold, 1):
+            if self.previous_ease_factor <= threshold:
+                return n
     
     def get_next_review(self):
         try:
@@ -142,18 +145,10 @@ class Deck:
 
     def get_progress(self):
         progress = [0, 0, 0, 0, 0]
-        progess_threshold = [1.3, 2.0, 2.5, 3.0, 4.0]
-        for card in self.cards:
-            if card.previous_ease_factor >= 4.0:
-                progress[4] += 1
-            elif card.previous_ease_factor >= 3.0:
-                progress[3] += 1
-            elif card.previous_ease_factor >= 2.5:
-                progress[2] += 1
-            elif card.previous_ease_factor >= 2.0:
-                progress[1] += 1
-            else:
-                progress[0] += 1
+        for n in range(5):
+            for card in self.cards:
+                if (card.box - 1) == n:
+                    progress[n] += 1
         return progress
 
     def get_langs(self):

@@ -1,5 +1,3 @@
-# HTMX partial for inline card editing
-
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, session
 from werkzeug.utils import secure_filename
@@ -244,6 +242,9 @@ def deck_overview(deck):
         if card:
             deck.cards.pop(card - 1)
             deck.save()
+
+    print(progress)
+    print(n_box)
 
     return render_template(
         "deck.html",
