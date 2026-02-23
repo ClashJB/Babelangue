@@ -66,11 +66,12 @@ class Flashcard:
         self.box = self.get_box()
 
     def get_box(self):
-        box_threshold = [1.3, 2.0, 2.5, 3.0, 4.0]
+        box_threshold = [2.0, 2.5, 3.0, 4.0, 10.0]
         for n, threshold in enumerate(box_threshold, 1):
-            if self.previous_ease_factor <= threshold:
+            if self.previous_ease_factor < threshold:
                 return n
-    
+        return 1
+
     def get_next_review(self):
         try:
             if self.row["next_review"]:

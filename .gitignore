@@ -3,3 +3,4 @@ user_data
 users.db
 build
 mistralai_api_key.env
+credentials.env

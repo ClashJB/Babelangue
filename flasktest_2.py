@@ -6,10 +6,12 @@ from datetime import datetime, timedelta
 import secrets
 from auth import auth, login_required
 import csv
-from mistral_test import image_to_csv
+from mistral_test import image_to_csv, client
 import pandas
 from pdf2image import convert_from_path
 from PIL import Image
+import sys
+
 
 def get_user_folder():
     return f"user_data/{session['username']}"
@@ -702,6 +704,5 @@ def serve_pdf(filepath):
     
 
 if __name__ == "__main__":
-    import sys
-    debug_mode = True #'--debug' in sys.argv
+    debug_mode = True if 'debug' in sys.argv else False
     app.run(host="0.0.0.0", port=5000, debug=debug_mode)
