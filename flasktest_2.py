@@ -3,7 +3,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_file, session
 from werkzeug.utils import secure_filename
-from BABELANGUE_alpha1 import Deck, Flashcard, translate, target_langues, get_definitions
+from BABELANGUE_sm2 import Deck, Flashcard, translate, target_langues, get_definitions
 from datetime import datetime, timedelta
 import secrets
 from auth import auth, login_required
@@ -387,14 +387,9 @@ def train(deck):
             deck_inst.order = s_langs
 
         else:
-            if action == "know_it":
-                card_inst.box += 1
-            elif action == "dont_know":
-                card_inst.box = 1
+            quality = int(action)
 
-            interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card_inst.box, 30)
-            card_inst.next_review = datetime.today() + timedelta(days=interval_days)
-            card_inst.save_row()
+            deck_inst.train(quality, card_inst)
             deck_inst.save()
 
             return redirect(url_for("train", deck=deck_path_display))

@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import json
+import math
 
 load_dotenv("deepl_api_key.env")
 
@@ -58,26 +59,15 @@ class Flashcard:
     def __init__(self, row):
         self.row = row
         self.card_row = self.get_card_row()
-        self.box = self.get_box()
+        self.previous_ease_factor = self.get("previous_ease_factor", 2.5)
+        self.repetitions = self.get("repetitions", 0)
+        self.previous_interval = self.get("previous_interval", 0)
         self.next_review = self.get_next_review()
-        self.last_review = self.get_last_review()
-
-    def get_card_row(self):
-        pure_row = {}
-        for (a, b) in self.row.items():
-            if a not in ["next_review", "last_review", "box"]:
-                pure_row[a] = b
-        return pure_row
+        self.box = self.get_box()
 
     def get_box(self):
-        try:
-            if self.row["box"]:
-                return int(self.row["box"])
-            else:
-                return 1
-        except KeyError:
-            return 1
-
+        ...
+    
     def get_next_review(self):
         try:
             if self.row["next_review"]:
@@ -86,26 +76,43 @@ class Flashcard:
                 return datetime(1767, 1, 1)
         except KeyError:
             return datetime.today()
+    
 
-    def get_last_review(self):
+    def get_card_row(self):
+        pure_row = {}
+        for (a, b) in self.row.items():
+            if a in target_langues.values():
+                pure_row[a] = b
+        return pure_row
+    
+    def get(self, target, default):
         try:
-            if self.row["last_review"]:
-                return pandas.to_datetime(self.row["last_review"])
+            value = self.row[target]
+            if value:
+                if isinstance(value, str):
+                    if value.isdigit():
+                        return int(value)
+                    try:
+                        return float(value)
+                    except ValueError:
+                        pass
+                return value
             else:
-                return datetime(1767, 1, 1)
+                return default
         except KeyError:
-            return datetime(1767, 1, 1)
-        
+            return default
+    
     def save_row(self):
-        self.row["box"] = self.box
+        self.row["repetitions"] = self.repetitions
+        self.row["previous_ease_factor"] = self.previous_ease_factor
+        self.row["previous_interval"] = self.previous_interval
         self.row["next_review"] = self.next_review
-        self.row["last_review"] = self.last_review
         return self.row
     
     def update_langs(self, langs):
         for key in self.row.keys():
             print(self.row.keys())
-            if not key in (["next_review", "last_review", "box"] + langs):
+            if not key in (["repetitions", "previous_ease_factor", "previous_interval", "next_review"] + langs):
                 self.row.pop(key)
 
 class Deck:
@@ -135,10 +142,18 @@ class Deck:
 
     def get_progress(self):
         progress = [0, 0, 0, 0, 0]
-        for n in range(5):
-            for card in self.cards:
-                if (card.box - 1) == n:
-                    progress[n] += 1
+        progess_threshold = [1.3, 2.0, 2.5, 3.0, 4.0]
+        for card in self.cards:
+            if card.previous_ease_factor >= 4.0:
+                progress[4] += 1
+            elif card.previous_ease_factor >= 3.0:
+                progress[3] += 1
+            elif card.previous_ease_factor >= 2.5:
+                progress[2] += 1
+            elif card.previous_ease_factor >= 2.0:
+                progress[1] += 1
+            else:
+                progress[0] += 1
         return progress
 
     def get_langs(self):
@@ -164,7 +179,7 @@ class Deck:
         for i, card in enumerate(self.cards, start=1):
             print(f"Card {i}:")
             for lang, result in card.row.items():
-                if lang in ["next_review", "last_review", "box"]:
+                if lang in ["repetitions", "previous_ease_factor", "previous_interval", "next_review"]:
                     pass
                 else:
                     print(f"    {lang} | {result}")
@@ -172,11 +187,11 @@ class Deck:
     
     def save(self):
         with open(self.csv_file, "w", newline="", encoding="utf-8") as deck:
-            writer = csv.DictWriter(deck, (["next_review", "last_review", "box"] + self.langs))
+            writer = csv.DictWriter(deck, (["repetitions", "previous_ease_factor", "previous_interval", "next_review"] + self.langs))
             writer.writeheader()
             try:
                 for card in self.cards:
-                    updated_row = {k:v for k,v in card.row.items() if k in (["next_review", "last_review", "box"] + self.langs)}
+                    updated_row = {k:v for k,v in card.row.items() if k in (["repetitions", "previous_ease_factor", "previous_interval", "next_review"] + self.langs)}
                     writer.writerow(updated_row)
             except AttributeError:
                 pass
@@ -206,46 +221,23 @@ class Deck:
                         context=f"Here are other translations of this word who help determine the context {card.card_row}"
                         )
 
-                    
-
-    def train(self, from_langs, to_langs):
-        exit_mode = False
-        for card in self.cards:
-            print(card.box)
-            if not datetime.today() >= card.next_review or exit_mode:
-                card.save_row()
-            else:
-                q = []
-                a = []
-                for lang in from_langs:
-                    q.append(f"{lang}: {card.row[lang]}")
-                for lang in to_langs:
-                    a.append(f"{lang}: {card.row[lang]}")
-                
-                try:
-                    print(f"Front Side: {"   |   ".join(q)}")
-                    t_inp = input()
-                    if t_inp or not t_inp:
-                        print(f" Back Side: {"   |   ".join(a)}")
-    
-                    guess = input("Did you know it? [Y]es or [No]?").strip().lower()
-                    
-                    if guess == "y":
-                        print("Good job!")
-                        card.box += 1
-                    elif guess == "x":
-                        raise EOFError
-                    else:
-                        print("Don't worry you'll get it next time.")
-                        card.box = 1
-                except EOFError:
-                    exit_mode = True
-                    print("User exists program, but files are saved.")
-                # schedule next review
-                interval_days = {1: 1, 2: 3, 3: 7, 4: 14}.get(card.box, 30)
-                card.next_review = datetime.today() + timedelta(days=interval_days)
-
-                card.save_row()
+    def train(self, quality, card=Flashcard):
+        if quality >= 3:
+            if card.repetitions == 0:
+                card.previous_interval = 1
+            elif card.repetitions == 1:
+                card.previous_interval = 6
+            elif card.repetitions > 1:
+                card.previous_interval = math.ceil(card.previous_interval * card.previous_ease_factor)
+            card.repetitions += 1
+            card.previous_ease_factor = card.previous_ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality ) * 0.02))
+        if quality < 3:
+            card.repetitions = 0
+            card.previous_interval = 1
+        if card.previous_ease_factor < 1.3:
+                card.previous_ease_factor = 1.3
+        card.next_review = datetime.today() + timedelta(days=card.previous_interval)
+        card.save_row()
 
     def add_cards_mode(self):
         while True:
@@ -298,7 +290,7 @@ class Deck:
             card.row
             print(f"Card {card_number + 1}:")
             for lang, result in card.row.items():
-                if lang in ["next_review", "last_review", "box"]:
+                if lang in ["repetitions", "previous_ease_factor", "previous_interval"]:
                     pass
                 else:
                     print(f"    {lang} | {result}")
