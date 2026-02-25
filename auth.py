@@ -6,7 +6,6 @@ import os
 
 from database import UserDatabase
 
-load_dotenv("credentials.env")
 
 
 auth = Blueprint('auth', __name__)
@@ -23,6 +22,7 @@ def login_required(f):
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if "auto_login" in sys.argv:
+        load_dotenv("credentials.env")
         set_username = os.getenv("APP_USERNAME")
         set_password = os.getenv("APP_PASSWORD")
         if db.verify_password(set_username, set_password):

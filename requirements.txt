@@ -98,3 +98,6 @@ wheel==0.45.1
 xdg==5
 xkit==0.0.0
 zipp==3.21.0
+
+pandas
+pdf2image
