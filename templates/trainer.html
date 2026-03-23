@@ -2,6 +2,7 @@
 
 {% block nav_button_translator %}-outline{% endblock %}
 {% block nav_button_trainer %}{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <a href="{{ url_for('deck_overview', deck=deck_path) }}" class="btn btn-secondary mb-3">Exit</a>
@@ -50,13 +51,21 @@
     <div class="container" style="max-width: 600px;">
         <form method="POST">
             <div class="d-flex flex-column justify-content-center">
-                <div class="d-flex justify-content-between">
+                <div class="full-feedback-buttons d-flex justify-content-between">
                     <button type="submit" name="action" value="0" class="btn bg-step-0">Blackout</button>
                     <button type="submit" name="action" value="1" class="btn bg-step-1">No</button>
                     <button type="submit" name="action" value="2" class="btn bg-step-2">Almost</button>
                     <button type="submit" name="action" value="3" class="btn bg-step-3">Difficult</button>
                     <button type="submit" name="action" value="4" class="btn bg-step-4">Correct</button>
                     <button type="submit" name="action" value="5" class="btn btn-info">Perfect</button>
+                </div>
+                <div class="small-feedback-buttons d-flex justify-content-between">
+                    <button type="submit" name="action" value="0" class="btn bg-step-0">0</button>
+                    <button type="submit" name="action" value="1" class="btn bg-step-1">1</button>
+                    <button type="submit" name="action" value="2" class="btn bg-step-2">2</button>
+                    <button type="submit" name="action" value="3" class="btn bg-step-3">3</button>
+                    <button type="submit" name="action" value="4" class="btn bg-step-4">4</button>
+                    <button type="submit" name="action" value="5" class="btn btn-info">6</button>
                 </div>
             </div>
         </form>
