@@ -1,5 +1,5 @@
 import os
-from mistralai import Mistral
+from mistralai.client import Mistral
 import io
 import pandas
 from dotenv import load_dotenv
